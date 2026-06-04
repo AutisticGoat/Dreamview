@@ -1,0 +1,89 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int            @id @default(autoincrement())
+  nombre       String
+  email        String         @unique
+  password     String
+  creadoEn     DateTime       @default(now())
+  dreams       Dream[]
+  tags         Tag[]
+  symbols      Symbol[]
+}
+
+model Dream {
+  id           Int            @id @default(autoincrement())
+  titulo       String
+  descripcion  String         @db.Text
+  intensidad   Int            @default(1)
+  fecha        DateTime
+  creadoEn     DateTime       @default(now())
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       Int
+  emotions     DreamEmotion[]
+  tags         DreamTag[]
+  symbols      DreamSymbol[]
+}
+
+model Emotion {
+  id           Int            @id @default(autoincrement())
+  nombre       String         @unique
+  colorHex     String
+  dreams       DreamEmotion[]
+}
+
+model DreamEmotion {
+  dream        Dream          @relation(fields: [dreamId], references: [id], onDelete: Cascade)
+  dreamId      Int
+  emotion      Emotion        @relation(fields: [emotionId], references: [id])
+  emotionId    Int
+  intensidad   Int            @default(1)
+
+  @@id([dreamId, emotionId])
+}
+
+model Tag {
+  id           Int            @id @default(autoincrement())
+  nombre       String
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       Int
+  dreams       DreamTag[]
+
+  @@unique([nombre, userId])
+}
+
+model DreamTag {
+  dream        Dream          @relation(fields: [dreamId], references: [id], onDelete: Cascade)
+  dreamId      Int
+  tag          Tag            @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  tagId        Int
+
+  @@id([dreamId, tagId])
+}
+
+model Symbol {
+  id           Int            @id @default(autoincrement())
+  nombre       String
+  frecuencia   Int            @default(1)
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       Int
+  dreams       DreamSymbol[]
+
+  @@unique([nombre, userId])
+}
+
+model DreamSymbol {
+  dream        Dream          @relation(fields: [dreamId], references: [id], onDelete: Cascade)
+  dreamId      Int
+  symbol       Symbol         @relation(fields: [symbolId], references: [id], onDelete: Cascade)
+  symbolId     Int
+
+  @@id([dreamId, symbolId])
+}
