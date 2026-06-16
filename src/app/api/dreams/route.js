@@ -18,7 +18,6 @@ const dreamSchema = z.object({
   simbolos:  z.array(z.string()).optional(),
 })
 
-// GET - Listar todos los sueños del usuario
 export async function GET(request) {
   try {
     const session = await getServerSession(authOptions)
@@ -26,8 +25,35 @@ export async function GET(request) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
     }
 
+    const { searchParams } = new URL(request.url)
+    const busqueda  = searchParams.get('q')         || ''
+    const emocion   = searchParams.get('emocion')   || ''
+    const etiqueta  = searchParams.get('etiqueta')  || ''
+    const simbolo   = searchParams.get('simbolo')   || ''
+    const fechaDesde = searchParams.get('desde')    || ''
+    const fechaHasta = searchParams.get('hasta')    || ''
+
+    const where = {
+      userId: session.user.id,
+      ...(busqueda && {
+        OR: [
+          { titulo:      { contains: busqueda } },
+          { descripcion: { contains: busqueda } },
+        ]
+      }),
+      ...(emocion  && { emotions: { some: { emotion: { nombre: emocion } } } }),
+      ...(etiqueta && { tags:     { some: { tag:     { nombre: etiqueta } } } }),
+      ...(simbolo  && { symbols:  { some: { symbol:  { nombre: simbolo  } } } }),
+      ...(fechaDesde || fechaHasta ? {
+        fecha: {
+          ...(fechaDesde && { gte: new Date(fechaDesde) }),
+          ...(fechaHasta && { lte: new Date(fechaHasta) }),
+        }
+      } : {}),
+    }
+
     const dreams = await prisma.dream.findMany({
-      where:   { userId: session.user.id },
+      where,
       include: {
         emotions: { include: { emotion: true } },
         tags:     { include: { tag: true } },
