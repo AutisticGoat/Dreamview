@@ -1,3 +1,259 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ── Variables globales ── */
+:root {
+  --bg-base:        #07071a;
+  --bg-surface:     #0c0c22;
+  --bg-elevated:    #0f0f28;
+
+  --border-subtle:  #1e1e3a;
+  --border-dim:     #151528;
+
+  --text-primary:   #d0c8f8;
+  --text-secondary: #7777aa;
+  --text-muted:     #33334a;
+  --text-dim:       #2a2a48;
+
+  --accent-purple:  #6655cc;
+  --accent-blue:    #3a7fc1;
+  --accent-purple-dim: #3d2d8a;
+
+  --glow-purple:    #6655cc33;
+  --glow-blue:      #3a7fc122;
+}
+
+/* ── Reset base ── */
+* {
+  margin:     0;
+  padding:    0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background:  var(--bg-base);
+  color:       var(--text-primary);
+  font-family: var(--font-inter), sans-serif;
+  font-size:   14px;
+  line-height: 1.6;
+  min-height:  100vh;
+  -webkit-font-smoothing:  antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar       { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg-base); }
+::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-purple-dim); }
+
+/* ── Selección de texto ── */
+::selection {
+  background: var(--accent-purple-dim);
+  color:      var(--text-primary);
+}
+
+/* ── Inputs y textareas globales ── */
+input, textarea {
+  background:  var(--bg-surface);
+  border:      0.5px solid var(--border-subtle);
+  border-radius: 8px;
+  color:       var(--text-primary);
+  font-family: var(--font-inter), sans-serif;
+  font-size:   13px;
+  outline:     none;
+  transition:  border-color 0.2s ease;
+  width:       100%;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-dim);
+}
+
+input:focus,
+textarea:focus {
+  border-color: var(--accent-purple);
+  box-shadow:   0 0 0 3px var(--glow-purple);
+}
+
+input[type="range"] {
+  background:    transparent;
+  border:        none;
+  box-shadow:    none;
+  width:         100%;
+  accent-color:  var(--accent-purple);
+  cursor:        pointer;
+}
+
+input[type="date"] {
+  color-scheme: dark;
+}
+
+/* ── Botones globales ── */
+.btn-primary {
+  background:    var(--accent-purple-dim);
+  border:        0.5px solid #6655cc44;
+  border-radius: 10px;
+  color:         #c8c0ff;
+  cursor:        pointer;
+  font-family:   var(--font-inter), sans-serif;
+  font-size:     13px;
+  font-weight:   500;
+  padding:       10px 22px;
+  transition:    background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: #4d3d9a;
+  box-shadow: 0 0 16px var(--glow-purple);
+}
+
+.btn-ghost {
+  background:    transparent;
+  border:        0.5px solid var(--border-subtle);
+  border-radius: 10px;
+  color:         var(--text-secondary);
+  cursor:        pointer;
+  font-family:   var(--font-inter), sans-serif;
+  font-size:     13px;
+  padding:       10px 22px;
+  transition:    border-color 0.2s ease, color 0.2s ease;
+}
+
+.btn-ghost:hover {
+  border-color: var(--accent-purple-dim);
+  color:        var(--text-primary);
+}
+
+.btn-danger {
+  background:    transparent;
+  border:        none;
+  color:         #aa5566;
+  cursor:        pointer;
+  font-family:   var(--font-inter), sans-serif;
+  font-size:     12px;
+  transition:    color 0.2s ease;
+}
+
+.btn-danger:hover { color: #cc7788; }
+
+/* ── Cards ── */
+.card {
+  background:    var(--bg-surface);
+  border:        0.5px solid var(--border-subtle);
+  border-radius: 12px;
+  padding:       16px;
+  position:      relative;
+  overflow:      hidden;
+  transition:    border-color 0.2s ease;
+}
+
+.card:hover { border-color: #2a2a50; }
+
+/* ── Tags ── */
+.tag {
+  border-radius: 20px;
+  display:       inline-flex;
+  align-items:   center;
+  font-size:     11px;
+  padding:       3px 10px;
+}
+
+.tag-emotion {
+  background: #1e1535;
+  border:     0.5px solid #3d2a6a;
+  color:      #9977dd;
+}
+
+.tag-label {
+  background: #10101e;
+  border:     0.5px solid var(--border-subtle);
+  color:      #444488;
+}
+
+.tag-symbol {
+  background: #0e1520;
+  border:     0.5px solid #1a2a40;
+  color:      #335588;
+}
+
+/* ── Orbe de luz difusa ── */
+.glow-orb {
+  border-radius:   50%;
+  filter:          blur(60px);
+  pointer-events:  none;
+  position:        absolute;
+}
+
+/* ── Barra de intensidad ── */
+.ibar-row {
+  display: flex;
+  gap:     3px;
+}
+
+.ibar {
+  border-radius: 1px;
+  flex:          1;
+  height:        2px;
+}
+
+.ibar-on  { background: linear-gradient(90deg, var(--accent-purple), var(--accent-blue)); }
+.ibar-off { background: var(--border-dim); }
+
+/* ── Divisor ── */
+.divider {
+  background: var(--border-subtle);
+  border:     none;
+  height:     0.5px;
+  margin:     20px 0;
+}
+
+/* ── Section title ── */
+.section-title {
+  align-items:     center;
+  color:           var(--text-muted);
+  display:         flex;
+  font-size:       10px;
+  gap:             10px;
+  letter-spacing:  0.1em;
+  margin-bottom:   14px;
+  text-transform:  uppercase;
+}
+
+.section-title::after {
+  content:    '';
+  flex:       1;
+  height:     0.5px;
+  background: var(--border-dim);
+}
+
+/* ── Animaciones ── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.3; }
+  50%       { opacity: 0.6; }
+}
+
+.fade-in { animation: fadeIn 0.4s ease forwards; }
+
+.pulse { animation: pulse-glow 3s ease-in-out infinite; }
+
+/* Fondo global para que las partículas sean visibles */
+html, body {
+  background: #07071a;
+}
+
+/* Hacer páginas transparentes para ver partículas */
+main {
+  background: transparent !important;
+}

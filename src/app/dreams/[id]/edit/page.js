@@ -1,16 +1,18 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { FadeIn, AnimatedButton, AnimatedLoader } from '@/components/animations'
 
-export default function NewDreamPage() {
+export default function EditDreamPage() {
   const router             = useRouter()
+  const params             = useParams()
   const { status }         = useSession()
   const [emociones, setEmociones]         = useState([])
   const [loading, setLoading]             = useState(false)
+  const [loadingData, setLoadingData]     = useState(true)
   const [error, setError]                 = useState('')
   const [etiquetaInput, setEtiquetaInput] = useState('')
   const [simboloInput, setSimboloInput]   = useState('')
@@ -19,7 +21,7 @@ export default function NewDreamPage() {
     titulo:      '',
     descripcion: '',
     intensidad:  3,
-    fecha:       new Date().toISOString().split('T')[0],
+    fecha:       '',
     emociones:   [],
     etiquetas:   [],
     simbolos:    [],
@@ -30,14 +32,27 @@ export default function NewDreamPage() {
   }, [status, router])
 
   useEffect(() => {
-    fetch('/api/emotions')
-      .then(res => res.json())
-      .then(data => setEmociones(Array.isArray(data) ? data : []))
-  }, [])
+    if (status !== 'authenticated') return
+    Promise.all([
+      fetch('/api/emotions').then(res => res.json()),
+      fetch(`/api/dreams/${params.id}`).then(res => res.json()),
+    ]).then(([emocionesData, dreamData]) => {
+      setEmociones(Array.isArray(emocionesData) ? emocionesData : [])
+      if (dreamData.error) { setError(dreamData.error); return }
+      setForm({
+        titulo:      dreamData.titulo,
+        descripcion: dreamData.descripcion,
+        intensidad:  dreamData.intensidad,
+        fecha:       new Date(dreamData.fecha).toISOString().split('T')[0],
+        emociones:   dreamData.emotions.map(e => ({ emotionId: e.emotionId, intensidad: e.intensidad })),
+        etiquetas:   dreamData.tags.map(t => t.tag.nombre),
+        simbolos:    dreamData.symbols.map(s => s.symbol.nombre),
+      })
+      setLoadingData(false)
+    })
+  }, [status, params.id])
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value })
-  }
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
 
   const toggleEmocion = (emotionId) => {
     const existe = form.emociones.find(e => e.emotionId === emotionId)
@@ -49,56 +64,40 @@ export default function NewDreamPage() {
   }
 
   const updateIntensidadEmocion = (emotionId, intensidad) => {
-    setForm({
-      ...form,
-      emociones: form.emociones.map(e =>
-        e.emotionId === emotionId ? { ...e, intensidad: parseInt(intensidad) } : e
-      ),
-    })
+    setForm({ ...form, emociones: form.emociones.map(e => e.emotionId === emotionId ? { ...e, intensidad: parseInt(intensidad) } : e) })
   }
 
   const agregarEtiqueta = (e) => {
     e?.preventDefault()
     const valor = etiquetaInput.trim().toLowerCase()
-    if (valor && !form.etiquetas.includes(valor)) {
-      setForm({ ...form, etiquetas: [...form.etiquetas, valor] })
-    }
+    if (valor && !form.etiquetas.includes(valor)) setForm({ ...form, etiquetas: [...form.etiquetas, valor] })
     setEtiquetaInput('')
   }
 
-  const eliminarEtiqueta = (etiqueta) => {
-    setForm({ ...form, etiquetas: form.etiquetas.filter(e => e !== etiqueta) })
-  }
+  const eliminarEtiqueta = (etiqueta) => setForm({ ...form, etiquetas: form.etiquetas.filter(e => e !== etiqueta) })
 
   const agregarSimbolo = (e) => {
     e?.preventDefault()
     const valor = simboloInput.trim().toLowerCase()
-    if (valor && !form.simbolos.includes(valor)) {
-      setForm({ ...form, simbolos: [...form.simbolos, valor] })
-    }
+    if (valor && !form.simbolos.includes(valor)) setForm({ ...form, simbolos: [...form.simbolos, valor] })
     setSimboloInput('')
   }
 
-  const eliminarSimbolo = (simbolo) => {
-    setForm({ ...form, simbolos: form.simbolos.filter(s => s !== simbolo) })
-  }
+  const eliminarSimbolo = (simbolo) => setForm({ ...form, simbolos: form.simbolos.filter(s => s !== simbolo) })
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
     setLoading(true)
-
     try {
-      const res = await fetch('/api/dreams', {
-        method:  'POST',
+      const res = await fetch(`/api/dreams/${params.id}`, {
+        method:  'PUT',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ ...form, intensidad: parseInt(form.intensidad) }),
       })
-
       const data = await res.json()
       if (!res.ok) { setError(data.error); return }
-      router.push('/dashboard')
-
+      router.push(`/dreams/${params.id}`)
     } catch {
       setError('Ocurrió un error, intenta de nuevo')
     } finally {
@@ -106,7 +105,7 @@ export default function NewDreamPage() {
     }
   }
 
-  if (status === 'loading') return <AnimatedLoader />
+  if (loadingData) return <AnimatedLoader />
 
   return (
     <main style={{ background: 'var(--bg-base)', minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>
@@ -114,10 +113,12 @@ export default function NewDreamPage() {
       <div className="glow-orb pulse" style={{ width: '280px', height: '280px', background: '#3d2d8a18', top: '-50px', right: '-30px' }} />
       <div className="glow-orb pulse" style={{ width: '180px', height: '180px', background: '#1a3a6a12', bottom: '80px', left: '-20px', animationDelay: '1.5s' }} />
 
-      <header style={{ alignItems: 'center', borderBottom: '0.5px solid var(--border-subtle)', display: 'flex', gap: '16px', padding: '16px 32px', position: 'relative', zIndex: 10 }}>
-        <Link href="/dashboard" style={{ color: 'var(--text-muted)', fontSize: '12px', textDecoration: 'none' }}>← Dashboard</Link>
-        <div style={{ width: '0.5px', height: '16px', background: 'var(--border-subtle)' }} />
-        <span style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>Registrar sueño</span>
+      <header style={{ alignItems: 'center', borderBottom: '0.5px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', padding: '16px 32px', position: 'relative', zIndex: 10 }}>
+        <div style={{ alignItems: 'center', display: 'flex', gap: '16px' }}>
+          <Link href={`/dreams/${params.id}`} style={{ color: 'var(--text-muted)', fontSize: '12px', textDecoration: 'none' }}>← Volver</Link>
+          <div style={{ width: '0.5px', height: '16px', background: 'var(--border-subtle)' }} />
+          <span style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>Editar sueño</span>
+        </div>
       </header>
 
       <div style={{ margin: '0 auto', maxWidth: '640px', padding: '40px 24px', position: 'relative', zIndex: 2 }}>
@@ -132,7 +133,7 @@ export default function NewDreamPage() {
 
             <div style={{ marginBottom: '20px' }}>
               <label style={{ color: 'var(--text-muted)', display: 'block', fontSize: '10px', letterSpacing: '0.1em', marginBottom: '8px', textTransform: 'uppercase' }}>Título del sueño</label>
-              <input type="text" name="titulo" value={form.titulo} onChange={handleChange} required placeholder="¿Cómo llamarías este sueño?" style={{ padding: '10px 14px' }} />
+              <input type="text" name="titulo" value={form.titulo} onChange={handleChange} required style={{ padding: '10px 14px' }} />
             </div>
 
             <div style={{ marginBottom: '20px' }}>
@@ -142,7 +143,7 @@ export default function NewDreamPage() {
 
             <div style={{ marginBottom: '20px' }}>
               <label style={{ color: 'var(--text-muted)', display: 'block', fontSize: '10px', letterSpacing: '0.1em', marginBottom: '8px', textTransform: 'uppercase' }}>Descripción</label>
-              <textarea name="descripcion" value={form.descripcion} onChange={handleChange} required rows={6} placeholder="Describe tu sueño con el mayor detalle posible..." style={{ padding: '10px 14px', resize: 'none' }} />
+              <textarea name="descripcion" value={form.descripcion} onChange={handleChange} required rows={6} style={{ padding: '10px 14px', resize: 'none' }} />
             </div>
 
             <div style={{ marginBottom: '28px' }}>
@@ -165,20 +166,7 @@ export default function NewDreamPage() {
                   const seleccionada = form.emociones.find(e => e.emotionId === emocion.id)
                   return (
                     <div key={emocion.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
-                      <button
-                        type="button"
-                        onClick={() => toggleEmocion(emocion.id)}
-                        style={{
-                          background:   seleccionada ? emocion.colorHex + '22' : 'transparent',
-                          border:       `0.5px solid ${seleccionada ? emocion.colorHex : 'var(--border-subtle)'}`,
-                          borderRadius: '20px',
-                          color:        seleccionada ? emocion.colorHex : 'var(--text-muted)',
-                          cursor:       'pointer',
-                          fontSize:     '12px',
-                          padding:      '5px 14px',
-                          transition:   'all 0.2s ease',
-                        }}
-                      >
+                      <button type="button" onClick={() => toggleEmocion(emocion.id)} style={{ background: seleccionada ? emocion.colorHex + '22' : 'transparent', border: `0.5px solid ${seleccionada ? emocion.colorHex : 'var(--border-subtle)'}`, borderRadius: '20px', color: seleccionada ? emocion.colorHex : 'var(--text-muted)', cursor: 'pointer', fontSize: '12px', padding: '5px 14px', transition: 'all 0.2s ease' }}>
                         {emocion.nombre}
                       </button>
                       {seleccionada && (
@@ -228,7 +216,7 @@ export default function NewDreamPage() {
             </div>
 
             <AnimatedButton type="submit" disabled={loading} className="btn-primary" style={{ fontSize: '14px', opacity: loading ? 0.5 : 1, padding: '13px', width: '100%' }}>
-              {loading ? 'Guardando sueño...' : 'Guardar sueño'}
+              {loading ? 'Guardando cambios...' : 'Guardar cambios'}
             </AnimatedButton>
 
           </form>
