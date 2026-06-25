@@ -5,34 +5,41 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { FadeIn, StaggerList, StaggerItem, AnimatedCard, PulsingDot, AnimatedLoader } from '@/components/animations'
+import DreamFilters from '@/components/DreamFilters'
 
 export default function Dashboard() {
   const { data: session, status } = useSession()
   const router                    = useRouter()
   const [dreams, setDreams]       = useState([])
   const [loading, setLoading]     = useState(true)
+  const [queryString, setQueryString] = useState('')
 
   useEffect(() => {
     if (status === 'unauthenticated') router.push('/auth/login')
   }, [status, router])
 
   useEffect(() => {
-    if (status === 'authenticated') {
-      fetch('/api/dreams')
-        .then(res => res.json())
-        .then(data => {
-          setDreams(Array.isArray(data) ? data : [])
-          setLoading(false)
-        })
-        .catch(() => {
-          setDreams([])
-          setLoading(false)
-        })
-    }
-  }, [status])
+    if (status !== 'authenticated') return
+
+    const url = queryString
+      ? `/api/dreams?${queryString}`
+      : '/api/dreams'
+
+    fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        setDreams(Array.isArray(data) ? data : [])
+        setLoading(false)
+      })
+      .catch(() => {
+        setDreams([])
+        setLoading(false)
+      })
+  }, [status, queryString])
 
   if (status === 'loading' || loading) return <AnimatedLoader />
 
+  const hayFiltros  = queryString.length > 0
   const totalDreams = dreams.length
 
   const emocionFrecuente = (() => {
@@ -149,9 +156,11 @@ export default function Dashboard() {
                 Hola, {session?.user?.nombre} 👋
               </h1>
               <p style={{ color: 'var(--text-muted)', fontSize: '11px', marginTop: '2px' }}>
-                {totalDreams === 0
-                  ? 'Aún no tienes sueños registrados'
-                  : `${totalDreams} ${totalDreams === 1 ? 'sueño registrado' : 'sueños registrados'}`}
+                {hayFiltros
+                  ? `${totalDreams} ${totalDreams === 1 ? 'resultado' : 'resultados'}`
+                  : totalDreams === 0
+                    ? 'Aún no tienes sueños registrados'
+                    : `${totalDreams} ${totalDreams === 1 ? 'sueño registrado' : 'sueños registrados'}`}
               </p>
             </div>
             <div style={{ alignItems: 'center', display: 'flex', gap: '10px' }}>
@@ -201,18 +210,30 @@ export default function Dashboard() {
             </div>
           </FadeIn>
 
+          <FadeIn delay={0.15}>
+            <DreamFilters onFilter={setQueryString} />
+          </FadeIn>
+
           <FadeIn delay={0.2}>
-            <div className="section-title">Sueños recientes</div>
+            <div className="section-title">
+              {hayFiltros ? 'Resultados' : 'Sueños recientes'}
+            </div>
           </FadeIn>
 
           {dreams.length === 0 ? (
             <FadeIn delay={0.3}>
               <div style={{ alignItems: 'center', display: 'flex', flexDirection: 'column', gap: '16px', padding: '60px 0', textAlign: 'center' }}>
                 <div style={{ color: 'var(--text-muted)', fontSize: '28px', opacity: 0.4 }}>◎</div>
-                <p style={{ color: 'var(--text-muted)', fontSize: '13px' }}>Tu archivo de sueños está vacío</p>
-                <Link href="/dreams/new" className="btn-primary" style={{ fontSize: '13px', textDecoration: 'none' }}>
-                  Registra tu primer sueño
-                </Link>
+                {hayFiltros ? (
+                  <p style={{ color: 'var(--text-muted)', fontSize: '13px' }}>No se encontraron sueños con esos filtros</p>
+                ) : (
+                  <>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '13px' }}>Tu archivo de sueños está vacío</p>
+                    <Link href="/dreams/new" className="btn-primary" style={{ fontSize: '13px', textDecoration: 'none' }}>
+                      Registra tu primer sueño
+                    </Link>
+                  </>
+                )}
               </div>
             </FadeIn>
           ) : (

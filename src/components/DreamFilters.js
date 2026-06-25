@@ -17,14 +17,20 @@ export default function DreamFilters({ onFilter }) {
   }, [])
 
   useEffect(() => {
-    const params = new URLSearchParams()
-    if (busqueda) params.set('q',       busqueda)
-    if (emocion)  params.set('emocion', emocion)
-    if (etiqueta) params.set('etiqueta',etiqueta)
-    if (desde)    params.set('desde',   desde)
-    if (hasta)    params.set('hasta',   hasta)
-    onFilter(params.toString())
-  }, [busqueda, emocion, etiqueta, desde, hasta])
+    const timer = setTimeout(() => {
+      const params = new URLSearchParams()
+
+      if (busqueda) params.set('q', busqueda)
+      if (emocion)  params.set('emocion', emocion)
+      if (etiqueta) params.set('etiqueta', etiqueta)
+      if (desde)    params.set('desde', desde)
+      if (hasta)    params.set('hasta', hasta)
+
+      onFilter(params.toString())
+    }, 400)
+
+    return () => clearTimeout(timer)
+  }, [busqueda, emocion, etiqueta, desde, hasta, onFilter])
 
   const limpiar = () => {
     setBusqueda('')
