@@ -32,6 +32,9 @@ export async function GET(request) {
     const simbolo   = searchParams.get('simbolo')   || ''
     const fechaDesde = searchParams.get('desde')    || ''
     const fechaHasta = searchParams.get('hasta')    || ''
+    const page  = parseInt(searchParams.get('page')  || '1')
+    const limit = parseInt(searchParams.get('limit') || '10')
+    const skip  = (page - 1) * limit
 
     const where = {
       userId: session.user.id,
@@ -52,17 +55,27 @@ export async function GET(request) {
       } : {}),
     }
 
-    const dreams = await prisma.dream.findMany({
-      where,
-      include: {
-        emotions: { include: { emotion: true } },
-        tags:     { include: { tag: true } },
-        symbols:  { include: { symbol: true } },
-      },
-      orderBy: { fecha: 'desc' },
-    })
+    const [dreams, total] = await Promise.all([
+      prisma.dream.findMany({
+        where,
+        include: {
+          emotions: { include: { emotion: true } },
+          tags:     { include: { tag: true } },
+          symbols:  { include: { symbol: true } },
+        },
+        orderBy: { fecha: 'desc' },
+        skip,
+        take: limit,
+      }),
+      prisma.dream.count({ where }),
+    ])
 
-    return NextResponse.json(dreams)
+    return NextResponse.json({
+      dreams,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit),
+    })
 
   } catch (error) {
     console.error('Error al obtener sueños:', error)

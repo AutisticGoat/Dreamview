@@ -14,6 +14,9 @@ export default function DreamPage() {
   const [loading, setLoading]   = useState(true)
   const [error, setError]       = useState('')
   const [conexiones, setConexiones] = useState([])
+  const [interpretacion, setInterpretacion] = useState(null)
+  const [interpretando, setInterpretando] = useState(false)
+  const [errorInterp, setErrorInterp] = useState('')
 
   useEffect(() => {
     if (status === 'unauthenticated') router.push('/auth/login')
@@ -39,6 +42,12 @@ export default function DreamPage() {
     }
   }, [status, params.id])
 
+  useEffect(() => {
+    if (dream?.interpretacion) {
+      setInterpretacion(dream.interpretacion)
+    }
+  }, [dream])
+
   const handleDelete = async () => {
     if (!confirm('¿Estás seguro de que quieres eliminar este sueño?')) return
     const res = await fetch(`/api/dreams/${params.id}`, { method: 'DELETE' })
@@ -56,6 +65,26 @@ export default function DreamPage() {
         </div>
       </main>
     )
+  }
+
+  const handleInterpretar = async () => {
+    setInterpretando(true)
+    setErrorInterp('')
+    try {
+      const res  = await fetch(`/api/dreams/${params.id}/interpret`, { method: 'POST' })
+      const data = await res.json()
+      if (!res.ok) { setErrorInterp(data.error); return }
+      setInterpretacion(data.interpretacion)
+    } catch {
+      setErrorInterp('Error al generar la interpretación')
+    } finally {
+      setInterpretando(false)
+    }
+  }
+
+  const handleEliminarInterpretacion = async () => {
+    await fetch(`/api/dreams/${params.id}/interpret`, { method: 'DELETE' })
+    setInterpretacion(null)
   }
 
   return (
@@ -182,6 +211,43 @@ export default function DreamPage() {
                     </div>
                   </Link>
                 ))}
+              </div>
+            )}
+          </div>
+          <hr className="divider" />
+
+          <div style={{ marginTop: '8px' }}>
+            <div className="section-title">Interpretación</div>
+
+            {!interpretacion ? (
+              <div className="card" style={{ padding: '16px' }}>
+                <p style={{ color: 'var(--text-muted)', fontSize: '12px', marginBottom: '14px', lineHeight: 1.6 }}>
+                  Genera una interpretación psicológica de este sueño basada en su contenido, emociones y conexiones con otros sueños.
+                </p>
+                {errorInterp && (
+                  <p style={{ color: '#cc7788', fontSize: '12px', marginBottom: '12px' }}>{errorInterp}</p>
+                )}
+                <button
+                  onClick={handleInterpretar}
+                  disabled={interpretando}
+                  className="btn-primary"
+                  style={{ fontSize: '12px', opacity: interpretando ? 0.5 : 1, padding: '8px 18px' }}
+                >
+                  {interpretando ? 'Interpretando...' : '✦ Interpretar sueño'}
+                </button>
+              </div>
+            ) : (
+              <div className="card" style={{ padding: '20px' }}>
+                <div style={{ whiteSpace: 'pre-line', color: 'var(--text-secondary)', fontSize: '13px', lineHeight: 1.8, marginBottom: '16px' }}>
+                  {interpretacion}
+                </div>
+                <button
+                  onClick={handleEliminarInterpretacion}
+                  className="btn-danger"
+                  style={{ fontSize: '11px' }}
+                >
+                  Regenerar interpretación
+                </button>
               </div>
             )}
           </div>

@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { FadeIn, StaggerList, StaggerItem, AnimatedCard, PulsingDot, AnimatedLoader } from '@/components/animations'
 import DreamFilters from '@/components/DreamFilters'
+import Pagination from '@/components/Pagination'
 
 export default function Dashboard() {
   const { data: session, status } = useSession()
@@ -13,31 +14,47 @@ export default function Dashboard() {
   const [dreams, setDreams]       = useState([])
   const [loading, setLoading]     = useState(true)
   const [queryString, setQueryString] = useState('')
+  const [page, setPage]             = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [filtros, setFiltros]       = useState('')
 
   useEffect(() => {
     if (status === 'unauthenticated') router.push('/auth/login')
   }, [status, router])
 
   useEffect(() => {
-    if (status !== 'authenticated') return
-
-    const url = queryString
-      ? `/api/dreams?${queryString}`
-      : '/api/dreams'
-
-    fetch(url)
+  if (status === 'authenticated') {
+    setLoading(true)
+    fetch(`/api/dreams?page=${page}&limit=10&${filtros}`)
       .then(res => res.json())
-      .then(data => {
-        setDreams(Array.isArray(data) ? data : [])
+      .then(async data => {
+        const dreams = Array.isArray(data.dreams) ? data.dreams : []
+
+        // Obtener conexiones para cada sueño
+        const conteosConexiones = {}
+        await Promise.all(dreams.map(async d => {
+          const res  = await fetch(`/api/dreams/${d.id}/connections`)
+          const data = await res.json()
+          conteosConexiones[d.id] = Array.isArray(data) ? data.length : 0
+        }))
+
+        setDreams(dreams.map(d => ({ ...d, totalConexiones: conteosConexiones[d.id] ?? 0 })))
+        setTotalPages(data.totalPages || 1)
         setLoading(false)
-      })
-      .catch(() => {
-        setDreams([])
-        setLoading(false)
-      })
-  }, [status, queryString])
+        })
+        .catch(() => {
+          setDreams([])
+          setLoading(false)
+        })
+    }
+  }, [status, page, filtros])
 
   if (status === 'loading' || loading) return <AnimatedLoader />
+
+  const handleFilter = (params) => {
+    setPage(1)
+    setFiltros(params)
+  }
 
   const hayFiltros  = queryString.length > 0
   const totalDreams = dreams.length
@@ -211,7 +228,7 @@ export default function Dashboard() {
           </FadeIn>
 
           <FadeIn delay={0.15}>
-            <DreamFilters onFilter={setQueryString} />
+            <DreamFilters onFilter={handleFilter} />
           </FadeIn>
 
           <FadeIn delay={0.2}>
@@ -261,6 +278,14 @@ export default function Dashboard() {
                           <div key={n} className={`ibar ${n <= dream.intensidad ? 'ibar-on' : 'ibar-off'}`} />
                         ))}
                       </div>
+                      {dream.totalConexiones > 0 && (
+                      <div style={{ alignItems: 'center', display: 'flex', gap: '5px', marginBottom: '8px' }}>
+                          <span style={{ color: '#3d2d8a', fontSize: '11px' }}>⟡</span>
+                          <span style={{ color: 'var(--text-muted)', fontSize: '10px' }}>
+                            {dream.totalConexiones} {dream.totalConexiones === 1 ? 'conexión' : 'conexiones'}
+                          </span>
+                        </div>
+                      )}
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
                         {dream.emotions.map(e => (
                           <span key={e.emotionId} className="tag" style={{ background: e.emotion.colorHex + '22', border: `0.5px solid ${e.emotion.colorHex}44`, color: e.emotion.colorHex }}>
@@ -280,6 +305,7 @@ export default function Dashboard() {
               ))}
             </StaggerList>
           )}
+          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
         </div>
       </div>
     </main>
