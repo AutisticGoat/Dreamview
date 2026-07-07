@@ -1,5 +1,6 @@
 'use client'
 
+import useIsMobile from '@/hooks/useIsMobile'
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
@@ -7,6 +8,7 @@ import Link from 'next/link'
 import { FadeIn, AnimatedButton, AnimatedLoader } from '@/components/animations'
 
 export default function EditDreamPage() {
+  const isMobile = useIsMobile()
   const router             = useRouter()
   const params             = useParams()
   const { status }         = useSession()
@@ -113,7 +115,7 @@ export default function EditDreamPage() {
       <div className="glow-orb pulse" style={{ width: '280px', height: '280px', background: '#3d2d8a18', top: '-50px', right: '-30px' }} />
       <div className="glow-orb pulse" style={{ width: '180px', height: '180px', background: '#1a3a6a12', bottom: '80px', left: '-20px', animationDelay: '1.5s' }} />
 
-      <header style={{ alignItems: 'center', borderBottom: '0.5px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', padding: '16px 32px', position: 'relative', zIndex: 10 }}>
+      <header style={{ alignItems: 'center', borderBottom: '0.5px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', padding: isMobile ? '12px 16px' : '16px 32px', position: 'relative', zIndex: 10 }}>
         <div style={{ alignItems: 'center', display: 'flex', gap: '16px' }}>
           <Link href={`/dreams/${params.id}`} style={{ color: 'var(--text-muted)', fontSize: '12px', textDecoration: 'none' }}>← Volver</Link>
           <div style={{ width: '0.5px', height: '16px', background: 'var(--border-subtle)' }} />
@@ -121,7 +123,7 @@ export default function EditDreamPage() {
         </div>
       </header>
 
-      <div style={{ margin: '0 auto', maxWidth: '640px', padding: '40px 24px', position: 'relative', zIndex: 2 }}>
+      <div style={{ margin: '0 auto', maxWidth: isMobile ? '100%' : '640px', padding: isMobile ? '24px 16px 80px' : '40px 24px' , position: 'relative', zIndex: 2 }}>
         <FadeIn>
           {error && (
             <div style={{ background: '#2a101566', border: '0.5px solid #aa556655', borderRadius: '8px', color: '#cc7788', fontSize: '13px', marginBottom: '24px', padding: '12px 16px' }}>
@@ -222,6 +224,38 @@ export default function EditDreamPage() {
           </form>
         </FadeIn>
       </div>
+      {isMobile && (
+        <nav style={{
+          background:     '#050512',
+          borderTop:      '0.5px solid var(--border-subtle)',
+          bottom:         0,
+          display:        'flex',
+          justifyContent: 'space-around',
+          left:           0,
+          padding:        '10px 0 14px',
+          position:       'fixed',
+          right:          0,
+          zIndex:         50,
+        }}>
+          {[
+            { icon: '⊞', href: '/dashboard', active: false },
+            { icon: '◎', href: '/explore',   active: false },
+            { icon: '◈', href: '/stats',     active: false },
+            { icon: '◉', href: '/profile',   active: false },
+          ].map((item, i) => (
+            <Link key={i} href={item.href} style={{
+              alignItems:     'center',
+              color:          item.active ? 'var(--accent-purple)' : 'var(--text-muted)',
+              display:        'flex',
+              flexDirection:  'column',
+              fontSize:       '20px',
+              textDecoration: 'none',
+            }}>
+              {item.icon}
+            </Link>
+          ))}
+        </nav>
+      )}
     </main>
   )
 }

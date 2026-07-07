@@ -1,5 +1,6 @@
 'use client'
 
+import useIsMobile from '@/hooks/useIsMobile'
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
@@ -9,14 +10,15 @@ import dynamic from 'next/dynamic'
 const DreamGraph = dynamic(() => import('@/components/DreamGraph'), { ssr: false })
 
 export default function ExplorePage() {
+  const isMobile = useIsMobile()
   const { status }            = useSession()
   const router                = useRouter()
   const [data, setData]       = useState(null)
   const [loading, setLoading] = useState(true)
   const [filtroEmocion, setFiltroEmocion] = useState('')
-const [umbral, setUmbral]           = useState(4)
-const [umbralLocal, setUmbralLocal] = useState(4)  
-const [emociones, setEmociones]         = useState([])
+  const [umbral, setUmbral]           = useState(4)
+  const [umbralLocal, setUmbralLocal] = useState(4)  
+  const [emociones, setEmociones]         = useState([])
 
   useEffect(() => {
     if (status === 'unauthenticated') router.push('/auth/login')
@@ -55,7 +57,19 @@ const [emociones, setEmociones]         = useState([])
     <main style={{ background: 'var(--bg-base)', display: 'flex', height: '100vh', overflow: 'hidden', position: 'relative' }}>
 
       {/* Sidebar */}
-      <aside style={{ background: '#050512', borderRight: '0.5px solid var(--border-subtle)', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px 0', gap: '6px', width: '56px', position: 'relative', zIndex: 10, flexShrink: 0 }}>
+      <aside style={{ 
+          background: '#050512', 
+          borderRight: '0.5px solid var(--border-subtle)', 
+          display: isMobile ? 'none' : 'flex', 
+          flexDirection: 'column', 
+          alignItems: 'center', 
+          padding: '20px 0', 
+          gap: '6px', 
+          width: '56px', 
+          position: 'relative', 
+          zIndex: 10, 
+          flexShrink: 0 
+        }}>
         <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: 'var(--accent-purple)', boxShadow: '0 0 8px var(--glow-purple)', marginBottom: '16px' }} />
         {[
           { icon: '⊞', label: 'Dashboard',    active: false, href: '/dashboard' },
@@ -72,7 +86,7 @@ const [emociones, setEmociones]         = useState([])
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', zIndex: 2 }}>
 
         {/* Topbar */}
-        <header style={{ alignItems: 'center', borderBottom: '0.5px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', padding: '12px 20px', flexShrink: 0, gap: '12px', flexWrap: 'wrap' }}>
+        <header style={{ alignItems: 'center', borderBottom: '0.5px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', padding: isMobile ? '10px 12px' : '12px 20px', flexShrink: 0, gap: '12px', flexWrap: 'wrap' }}>
           <div>
             <h1 style={{ color: 'var(--text-primary)', fontSize: '15px', fontWeight: 500 }}>Explorar conexiones</h1>
             <p style={{ color: 'var(--text-muted)', fontSize: '11px', marginTop: '2px' }}>
@@ -109,7 +123,7 @@ const [emociones, setEmociones]         = useState([])
                   onChange={e => setUmbralLocal(parseInt(e.target.value))}
                   onMouseUp={e => setUmbral(parseInt(e.target.value))}
                   onTouchEnd={e => setUmbral(parseInt(e.target.value))}
-                  style={{ width: '80px', accentColor: 'var(--accent-purple)' }}
+                  style={{ width: isMobile ? '60px' : '80px', accentColor: 'var(--accent-purple)' }}
                 />
               </div>
 
@@ -131,7 +145,7 @@ const [emociones, setEmociones]         = useState([])
         </header>
 
         {/* Grafo */}
-        <div style={{ flex: 1, position: 'relative' }}>
+        <div style={{ flex: 1, position: 'relative', paddingBottom: isMobile ? '60px' : '0'  }}>
           {!tieneData ? (
             <div style={{ alignItems: 'center', display: 'flex', flexDirection: 'column', gap: '16px', height: '100%', justifyContent: 'center', textAlign: 'center' }}>
               <div style={{ color: 'var(--text-muted)', fontSize: '32px', opacity: 0.3 }}>◎</div>
@@ -149,6 +163,38 @@ const [emociones, setEmociones]         = useState([])
           )}
         </div>
       </div>
+      {isMobile && (
+        <nav style={{
+          background:     '#050512',
+          borderTop:      '0.5px solid var(--border-subtle)',
+          bottom:         0,
+          display:        'flex',
+          justifyContent: 'space-around',
+          left:           0,
+          padding:        '10px 0 14px',
+          position:       'fixed',
+          right:          0,
+          zIndex:         50,
+        }}>
+          {[
+            { icon: '⊞', href: '/dashboard', active: false  },
+            { icon: '◎', href: '/explore',   active: true },
+            { icon: '◈', href: '/stats',     active: false },
+            { icon: '◉', href: '/profile',   active: false },
+          ].map((item, i) => (
+            <Link key={i} href={item.href} style={{
+              alignItems:     'center',
+              color:          item.active ? 'var(--accent-purple)' : 'var(--text-muted)',
+              display:        'flex',
+              flexDirection:  'column',
+              fontSize:       '20px',
+              textDecoration: 'none',
+            }}>
+              {item.icon}
+            </Link>
+          ))}
+        </nav>
+      )}
     </main>
   )
 }

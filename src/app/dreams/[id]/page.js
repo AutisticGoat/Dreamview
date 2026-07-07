@@ -1,5 +1,6 @@
 'use client'
 
+import useIsMobile from '@/hooks/useIsMobile'
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
@@ -7,6 +8,7 @@ import Link from 'next/link'
 import { FadeIn, AnimatedLoader } from '@/components/animations'
 
 export default function DreamPage() {
+  const isMobile = useIsMobile()
   const { status }              = useSession()
   const router                  = useRouter()
   const params                  = useParams()
@@ -93,11 +95,17 @@ export default function DreamPage() {
       <div className="glow-orb pulse" style={{ width: '300px', height: '300px', background: '#3d2d8a18', top: '-60px', right: '-40px' }} />
       <div className="glow-orb pulse" style={{ width: '200px', height: '200px', background: '#1a3a6a12', bottom: '60px', left: '-20px', animationDelay: '2s' }} />
 
-      <header style={{ alignItems: 'center', borderBottom: '0.5px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', padding: '16px 32px', position: 'relative', zIndex: 10 }}>
+      <header style={{ alignItems: 'center', borderBottom: '0.5px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', padding: isMobile ? '12px 16px' : '16px 32px' , position: 'relative', zIndex: 10 }}>
         <div style={{ alignItems: 'center', display: 'flex', gap: '16px' }}>
           <Link href="/dashboard" style={{ color: 'var(--text-muted)', fontSize: '12px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}>← Dashboard</Link>
-          <div style={{ width: '0.5px', height: '16px', background: 'var(--border-subtle)' }} />
-          <span style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>{dream.titulo}</span>
+          {
+            !isMobile && (
+            <>
+              <div style={{ width: '0.5px', height: '16px', background: 'var(--border-subtle)' }} />
+              <span style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>{dream.titulo}</span>
+            </>  
+          )
+          }
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <Link href={`/dreams/${params.id}/edit`} style={{ background: 'var(--bg-surface)', border: '0.5px solid var(--border-subtle)', borderRadius: '8px', color: 'var(--text-secondary)', fontSize: '12px', padding: '6px 14px', textDecoration: 'none' }}>
@@ -107,7 +115,13 @@ export default function DreamPage() {
         </div>
       </header>
 
-      <div style={{ margin: '0 auto', maxWidth: '680px', padding: '40px 24px', position: 'relative', zIndex: 2 }}>
+      <div style={{ 
+          margin: '0 auto', 
+          maxWidth: isMobile ? '100%' : '680px',
+          padding: isMobile ? '24px 16px 80px' : '40px 24px',
+          position: 'relative', 
+          zIndex: 2 
+        }}>
         <FadeIn>
 
           <div style={{ alignItems: 'center', display: 'flex', gap: '12px', marginBottom: '20px' }}>
@@ -121,7 +135,7 @@ export default function DreamPage() {
             </div>
           </div>
 
-          <h1 style={{ color: 'var(--text-primary)', fontSize: '26px', fontWeight: 500, lineHeight: 1.25, marginBottom: '16px' }}>
+          <h1 style={{ color: 'var(--text-primary)', fontSize: isMobile ? '20px' : '26px', fontWeight: 500, lineHeight: 1.25, marginBottom: '16px' }}>
             {dream.titulo}
           </h1>
 
@@ -254,6 +268,38 @@ export default function DreamPage() {
 
         </FadeIn>
       </div>
+      {isMobile && (
+      <nav style={{
+        background:     '#050512',
+        borderTop:      '0.5px solid var(--border-subtle)',
+        bottom:         0,
+        display:        'flex',
+        justifyContent: 'space-around',
+        left:           0,
+        padding:        '10px 0 14px',
+        position:       'fixed',
+        right:          0,
+        zIndex:         50,
+      }}>
+        {[
+          { icon: '⊞', href: '/dashboard', active: true  },
+          { icon: '◎', href: '/explore',   active: false },
+          { icon: '◈', href: '/stats',     active: false },
+          { icon: '◉', href: '/profile',   active: false },
+        ].map((item, i) => (
+          <Link key={i} href={item.href} style={{
+            alignItems:     'center',
+            color:          item.active ? 'var(--accent-purple)' : 'var(--text-muted)',
+            display:        'flex',
+            flexDirection:  'column',
+            fontSize:       '20px',
+            textDecoration: 'none',
+          }}>
+            {item.icon}
+          </Link>
+        ))}
+      </nav>
+    )}
     </main>
   )
 }

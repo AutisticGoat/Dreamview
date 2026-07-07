@@ -1,5 +1,6 @@
 'use client'
 
+import useIsMobile from '@/hooks/useIsMobile'
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
@@ -8,6 +9,7 @@ import {
   AreaChart, Area, XAxis, YAxis,
   CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from 'recharts'
+import { SkeletonStat, SkeletonBox } from '@/components/Skeleton'
 
 function CustomTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null
@@ -30,6 +32,7 @@ function CustomTooltip({ active, payload, label }) {
 }
 
 export default function StatsPage() {
+  const isMobile = useIsMobile()
   const { status }              = useSession()
   const router                  = useRouter()
   const [timeline, setTimeline] = useState(null)
@@ -54,16 +57,27 @@ export default function StatsPage() {
     }
   }, [status])
 
-  if (loading) {
-    return (
-      <main style={{ alignItems: 'center', background: 'var(--bg-base)', display: 'flex', justifyContent: 'center', minHeight: '100vh' }}>
-        <div style={{ alignItems: 'center', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--accent-purple)', boxShadow: '0 0 10px var(--glow-purple)', animation: 'pulse-glow 1.5s ease-in-out infinite' }} />
-          <span style={{ color: 'var(--text-muted)', fontSize: '12px', letterSpacing: '0.1em' }}>CARGANDO</span>
-        </div>
-      </main>
-    )
-  }
+  if (loading) return (
+  <main style={{ background: 'var(--bg-base)', display: 'flex', minHeight: '100vh' }}>
+    <aside style={{ width: '56px', background: '#050512', borderRight: '0.5px solid var(--border-subtle)', flexShrink: 0 }} />
+    <div style={{ flex: 1, padding: '32px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '24px' }}>
+        <SkeletonStat />
+        <SkeletonStat />
+        <SkeletonStat />
+        <SkeletonStat />
+      </div>
+      <div className="card" style={{ padding: '24px', marginBottom: '16px' }}>
+        <SkeletonBox width="100%" height="260px" borderRadius="8px" />
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+        <SkeletonStat />
+        <SkeletonStat />
+        <SkeletonStat />
+      </div>
+    </div>
+  </main>
+)
 
   const tieneData = general?.total > 0
 
@@ -78,7 +92,7 @@ export default function StatsPage() {
       <aside style={{
         background:    '#050512',
         borderRight:   '0.5px solid var(--border-subtle)',
-        display:       'flex',
+        display:       isMobile ? 'none' : 'flex',
         flexDirection: 'column',
         alignItems:    'center',
         padding:       '20px 0',
@@ -111,7 +125,7 @@ export default function StatsPage() {
       </aside>
 
       {/* Contenido */}
-      <div style={{ flex: 1, padding: '32px', position: 'relative', zIndex: 2, overflowY: 'auto' }}>
+      <div style={{ flex: 1, padding: isMobile ? '20px 16px 80px' : '32px', position: 'relative', zIndex: 2, overflowY: 'auto' }}>
 
         {/* Header */}
         <div style={{ marginBottom: '32px' }}>
@@ -217,7 +231,7 @@ export default function StatsPage() {
             </div>
 
             {/* Top listas */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',  gap: '16px' }}>
 
               {/* Top emociones */}
               <div className="card" style={{ padding: '20px' }}>
@@ -296,6 +310,38 @@ export default function StatsPage() {
           </>
         )}
       </div>
+      {isMobile && (
+        <nav style={{
+          background:     '#050512',
+          borderTop:      '0.5px solid var(--border-subtle)',
+          bottom:         0,
+          display:        'flex',
+          justifyContent: 'space-around',
+          left:           0,
+          padding:        '10px 0 14px',
+          position:       'fixed',
+          right:          0,
+          zIndex:         50,
+        }}>
+          {[
+            { icon: '⊞', href: '/dashboard', active: false },
+            { icon: '◎', href: '/explore',   active: false },
+            { icon: '◈', href: '/stats',     active: true },
+            { icon: '◉', href: '/profile',   active: false },
+          ].map((item, i) => (
+            <Link key={i} href={item.href} style={{
+              alignItems:     'center',
+              color:          item.active ? 'var(--accent-purple)' : 'var(--text-muted)',
+              display:        'flex',
+              flexDirection:  'column',
+              fontSize:       '20px',
+              textDecoration: 'none',
+            }}>
+              {item.icon}
+            </Link>
+          ))}
+        </nav>
+      )}
     </main>
   )
 }

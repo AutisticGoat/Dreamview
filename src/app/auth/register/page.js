@@ -1,11 +1,13 @@
 'use client'
 
+import useIsMobile from '@/hooks/useIsMobile'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { FadeIn, ScaleIn, AnimatedButton, PulsingDot } from '@/components/animations'
 
 export default function RegisterPage() {
+  const isMobile = useIsMobile()
   const router              = useRouter()
   const [form, setForm]     = useState({ nombre: '', email: '', password: '', passwordConfirm: '' })
   const [error, setError]   = useState('')
@@ -51,12 +53,21 @@ export default function RegisterPage() {
   }
 
   return (
-    <main style={{ alignItems: 'center', background: 'var(--bg-base)', display: 'flex', justifyContent: 'center', minHeight: '100vh', padding: '24px', position: 'relative', overflow: 'hidden' }}>
+    <main style={{ 
+        alignItems: 'center', 
+        background: 'var(--bg-base)', 
+        display: 'flex', 
+        justifyContent: 'center', 
+        minHeight: '100vh', 
+        padding: isMobile ? '16px' : '24px', 
+        position: 'relative', 
+        overflow: 'hidden' 
+      }}>
 
       <div className="glow-orb pulse" style={{ width: '300px', height: '300px', background: '#3d2d8a20', top: '-80px', left: '-60px' }} />
       <div className="glow-orb pulse" style={{ width: '200px', height: '200px', background: '#1a3a6a15', bottom: '40px', right: '-40px', animationDelay: '1.5s' }} />
 
-      <div style={{ position: 'relative', width: '100%', maxWidth: '400px', zIndex: 2 }}>
+      <div style={{ position: 'relative', width: '100%', maxWidth: isMobile ? '100%' : '400px', zIndex: 2 }}>
 
         <FadeIn>
           <div style={{ alignItems: 'center', display: 'flex', gap: '10px', justifyContent: 'center', marginBottom: '40px' }}>
@@ -66,7 +77,7 @@ export default function RegisterPage() {
         </FadeIn>
 
         <ScaleIn delay={0.1}>
-          <div className="card" style={{ padding: '32px' }}>
+          <div className="card" style={{ padding: isMobile ? '24px 20px' : '32px'  }}>
 
             <h1 style={{ color: 'var(--text-primary)', fontSize: '20px', fontWeight: 500, marginBottom: '6px' }}>
               Crear cuenta

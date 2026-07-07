@@ -8,6 +8,7 @@ export default function DreamFilters({ onFilter }) {
   const [etiqueta,  setEtiqueta]  = useState('')
   const [desde,     setDesde]     = useState('')
   const [hasta,     setHasta]     = useState('')
+  const [simbolo, setSimbolo] = useState('')
   const [emociones, setEmociones] = useState([])
 
   useEffect(() => {
@@ -25,6 +26,7 @@ export default function DreamFilters({ onFilter }) {
       if (etiqueta) params.set('etiqueta', etiqueta)
       if (desde)    params.set('desde', desde)
       if (hasta)    params.set('hasta', hasta)
+      if (simbolo) params.set('simbolo', simbolo)
 
       onFilter(params.toString())
     }, 400)
@@ -38,9 +40,10 @@ export default function DreamFilters({ onFilter }) {
     setEtiqueta('')
     setDesde('')
     setHasta('')
+    setSimbolo('')
   }
 
-  const hayFiltros = busqueda || emocion || etiqueta || desde || hasta
+  const hayFiltros = busqueda || emocion || etiqueta || simbolo || desde || hasta
 
   return (
     <div style={{ marginBottom: '20px' }}>
@@ -75,6 +78,14 @@ export default function DreamFilters({ onFilter }) {
           value={etiqueta}
           onChange={e => setEtiqueta(e.target.value)}
           placeholder="Filtrar por etiqueta..."
+          style={{ padding: '7px 12px', flex: 1, minWidth: '140px', fontSize: '12px' }}
+        />
+
+        <input
+          type="text"
+          value={simbolo}
+          onChange={e => setSimbolo(e.target.value)}
+          placeholder="Filtrar por símbolo..."
           style={{ padding: '7px 12px', flex: 1, minWidth: '140px', fontSize: '12px' }}
         />
 

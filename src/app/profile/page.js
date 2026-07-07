@@ -1,5 +1,6 @@
 'use client'
 
+import useIsMobile from '@/hooks/useIsMobile'
 import { useState, useEffect } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
@@ -7,6 +8,7 @@ import Link from 'next/link'
 import { FadeIn, AnimatedButton, AnimatedLoader } from '@/components/animations'
 
 export default function ProfilePage() {
+  const isMobile = useIsMobile()
   const { data: session, status, update } = useSession()
   const router                             = useRouter()
   const [loadingData, setLoadingData]     = useState(true)
@@ -103,7 +105,7 @@ export default function ProfilePage() {
       <div className="glow-orb pulse" style={{ width: '280px', height: '280px', background: '#3d2d8a18', top: '-50px', right: '-30px' }} />
       <div className="glow-orb pulse" style={{ width: '180px', height: '180px', background: '#1a3a6a12', bottom: '80px', left: '-20px', animationDelay: '1.5s' }} />
 
-      <header style={{ alignItems: 'center', borderBottom: '0.5px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', padding: '16px 32px', position: 'relative', zIndex: 10 }}>
+      <header style={{ alignItems: 'center', borderBottom: '0.5px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', padding: isMobile ? '12px 16px' : '16px 32px', position: 'relative', zIndex: 10 }}>
         <div style={{ alignItems: 'center', display: 'flex', gap: '16px' }}>
           <Link href="/dashboard" style={{ color: 'var(--text-muted)', fontSize: '12px', textDecoration: 'none' }}>← Dashboard</Link>
           <div style={{ width: '0.5px', height: '16px', background: 'var(--border-subtle)' }} />
@@ -111,11 +113,11 @@ export default function ProfilePage() {
         </div>
       </header>
 
-      <div style={{ margin: '0 auto', maxWidth: '560px', padding: '40px 24px', position: 'relative', zIndex: 2 }}>
+      <div style={{ margin: '0 auto', maxWidth: isMobile ? '100%' : '560px', padding: isMobile ? '24px 16px 80px' : '40px 24px', position: 'relative', zIndex: 2 }}>
         <FadeIn>
 
           <div style={{ alignItems: 'center', display: 'flex', gap: '16px', marginBottom: '36px' }}>
-            <div style={{ alignItems: 'center', background: '#1e1535', border: '0.5px solid #3d2a6a', borderRadius: '50%', color: 'var(--accent-purple)', display: 'flex', fontSize: '22px', fontWeight: 500, height: '56px', justifyContent: 'center', width: '56px' }}>
+            <div style={{ alignItems: 'center', background: '#1e1535', border: '0.5px solid #3d2a6a', borderRadius: '50%', color: 'var(--accent-purple)', display: 'flex', fontSize: '22px', fontWeight: 500, height: isMobile ? '44px' : '56px',  justifyContent: 'center', width: isMobile ? '44px' : '56px', }}>
               {form.nombre?.[0]?.toUpperCase() ?? '?'}
             </div>
             <div>
@@ -198,6 +200,38 @@ export default function ProfilePage() {
 
         </FadeIn>
       </div>
+      {isMobile && (
+        <nav style={{
+          background:     '#050512',
+          borderTop:      '0.5px solid var(--border-subtle)',
+          bottom:         0,
+          display:        'flex',
+          justifyContent: 'space-around',
+          left:           0,
+          padding:        '10px 0 14px',
+          position:       'fixed',
+          right:          0,
+          zIndex:         50,
+        }}>
+          {[
+            { icon: '⊞', href: '/dashboard', active: false },
+            { icon: '◎', href: '/explore',   active: false },
+            { icon: '◈', href: '/stats',     active: false },
+            { icon: '◉', href: '/profile',   active: true },
+          ].map((item, i) => (
+            <Link key={i} href={item.href} style={{
+              alignItems:     'center',
+              color:          item.active ? 'var(--accent-purple)' : 'var(--text-muted)',
+              display:        'flex',
+              flexDirection:  'column',
+              fontSize:       '20px',
+              textDecoration: 'none',
+            }}>
+              {item.icon}
+            </Link>
+          ))}
+        </nav>
+      )}
     </main>
   )
 }

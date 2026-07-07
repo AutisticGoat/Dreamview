@@ -1,3 +1,6 @@
+'use client'
+
+import useIsMobile from '@/hooks/useIsMobile'
 import Link from 'next/link'
 import { FadeIn, FadeInSimple, StaggerList, StaggerItem } from '@/components/animations'
 
@@ -7,6 +10,7 @@ export default function Home() {
     { icon: '⟡', title: 'Conexiones',         desc: 'Descubre qué sueños comparten patrones y símbolos' },
     { icon: '◈', title: 'Visualización',      desc: 'Explora tu mundo onírico mediante grafos y timelines' },
   ]
+  const isMobile = useIsMobile()
 
   return (
     <main style={{ background: 'var(--bg-base)', minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>
@@ -22,7 +26,7 @@ export default function Home() {
         display:        'flex',
         alignItems:     'center',
         justifyContent: 'space-between',
-        padding:        '16px 40px',
+        padding:        isMobile ? '14px 20px' : '16px 40px',
         position:       'relative',
         zIndex:         10,
       }}>
@@ -33,9 +37,11 @@ export default function Home() {
               background: 'var(--accent-purple)',
               boxShadow: '0 0 10px var(--glow-purple)',
             }} />
-            <span style={{ color: 'var(--text-primary)', fontSize: '15px', fontWeight: 500, letterSpacing: '0.02em' }}>
-              DreamView
-            </span>
+            {!isMobile && (
+              <span style={{ color: 'var(--text-primary)', fontSize: '15px', fontWeight: 500 }}>
+                DreamView
+              </span>
+            )}
           </div>
         </FadeInSimple>
 

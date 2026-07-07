@@ -3,9 +3,11 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
+import useIsMobile from '@/hooks/useIsMobile'
 import Link from 'next/link'
 
 export default function NewDreamPage() {
+  const isMobile = useIsMobile()
   const router             = useRouter()
   const { status }         = useSession()
   const [emociones, setEmociones]         = useState([])
@@ -132,7 +134,7 @@ export default function NewDreamPage() {
         borderBottom:   '0.5px solid var(--border-subtle)',
         display:        'flex',
         gap:            '16px',
-        padding:        '16px 32px',
+        padding:        isMobile ? '12px 16px' : '16px 32px',
         position:       'relative',
         zIndex:         10,
       }}>
@@ -144,7 +146,13 @@ export default function NewDreamPage() {
       </header>
 
       {/* Formulario */}
-      <div style={{ margin: '0 auto', maxWidth: '640px', padding: '40px 24px', position: 'relative', zIndex: 2 }}>
+      <div style={{ 
+          margin: '0 auto', 
+          maxWidth: isMobile ? '100%' : '640px', 
+          padding: isMobile ? '24px 16px 80px' : '40px 24px', 
+          position: 'relative', 
+          zIndex: 2 
+        }}>
 
         {error && (
           <div style={{
@@ -388,6 +396,38 @@ export default function NewDreamPage() {
 
         </form>
       </div>
+      {isMobile && (
+        <nav style={{
+          background:     '#050512',
+          borderTop:      '0.5px solid var(--border-subtle)',
+          bottom:         0,
+          display:        'flex',
+          justifyContent: 'space-around',
+          left:           0,
+          padding:        '10px 0 14px',
+          position:       'fixed',
+          right:          0,
+          zIndex:         50,
+        }}>
+          {[
+            { icon: '⊞', href: '/dashboard', active: false },
+            { icon: '◎', href: '/explore',   active: false },
+            { icon: '◈', href: '/stats',     active: false },
+            { icon: '◉', href: '/profile',   active: false },
+          ].map((item, i) => (
+            <Link key={i} href={item.href} style={{
+              alignItems:     'center',
+              color:          item.active ? 'var(--accent-purple)' : 'var(--text-muted)',
+              display:        'flex',
+              flexDirection:  'column',
+              fontSize:       '20px',
+              textDecoration: 'none',
+            }}>
+              {item.icon}
+            </Link>
+          ))}
+        </nav>
+      )}
     </main>
   )
 }

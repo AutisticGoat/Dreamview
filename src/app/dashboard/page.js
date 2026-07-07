@@ -1,5 +1,5 @@
 'use client'
-
+import useIsMobile from '@/hooks/useIsMobile'
 import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -7,8 +7,10 @@ import Link from 'next/link'
 import { FadeIn, StaggerList, StaggerItem, AnimatedCard, PulsingDot, AnimatedLoader } from '@/components/animations'
 import DreamFilters from '@/components/DreamFilters'
 import Pagination from '@/components/Pagination'
+import { SkeletonCard, SkeletonStat } from '@/components/Skeleton'
 
 export default function Dashboard() {
+  const isMobile = useIsMobile()
   const { data: session, status } = useSession()
   const router                    = useRouter()
   const [dreams, setDreams]       = useState([])
@@ -49,7 +51,24 @@ export default function Dashboard() {
     }
   }, [status, page, filtros])
 
-  if (status === 'loading' || loading) return <AnimatedLoader />
+  if (status === 'loading' || loading) return (
+  <main style={{ background: 'var(--bg-base)', display: 'flex', minHeight: '100vh' }}>
+    <aside style={{ width: '56px', background: '#050512', borderRight: '0.5px solid var(--border-subtle)', flexShrink: 0 }} />
+    <div style={{ flex: 1, padding: '24px 28px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginBottom: '28px' }}>
+        <SkeletonStat />
+        <SkeletonStat />
+        <SkeletonStat />
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <SkeletonCard />
+        <SkeletonCard />
+        <SkeletonCard />
+        <SkeletonCard />
+      </div>
+    </div>
+  </main>
+)
 
   const handleFilter = (params) => {
     setPage(1)
@@ -88,9 +107,9 @@ export default function Dashboard() {
 
       {/* Sidebar */}
       <aside style={{
+        display: isMobile ? 'none' : 'flex',
         background:    '#050512',
         borderRight:   '0.5px solid var(--border-subtle)',
-        display:       'flex',
         flexDirection: 'column',
         alignItems:    'center',
         padding:       '20px 0',
@@ -133,7 +152,9 @@ export default function Dashboard() {
           justifyContent: 'center',
           textDecoration: 'none',
           width:          '36px',
+         
         }}>
+          {session?.user?.nombre?.[0]?.toUpperCase() ?? '?'}
           ◉
         </Link>
         <button
@@ -158,15 +179,22 @@ export default function Dashboard() {
       </aside>
 
       {/* Contenido principal */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', zIndex: 2 }}>
+      <div style={{ 
+          flex: 1, 
+          display: 'flex', 
+          flexDirection: 'column', 
+          position: 'relative', 
+          zIndex: 2, 
+          padding: isMobile ? '16px 16px 80px' : '24px 28px', 
+        }}>
 
         <FadeIn>
           <header style={{
-            alignItems:     'center',
-            borderBottom:   '0.5px solid var(--border-subtle)',
-            display:        'flex',
+            alignItems: 'center',
+            borderBottom: '0.5px solid var(--border-subtle)',
+            display:'flex',
             justifyContent: 'space-between',
-            padding:        '16px 28px',
+            padding: isMobile ? '12px 16px' : '16px 28px' ,
           }}>
             <div>
               <h1 style={{ color: 'var(--text-primary)', fontSize: '17px', fontWeight: 500 }}>
@@ -201,6 +229,7 @@ export default function Dashboard() {
               >
                 {session?.user?.nombre?.[0]?.toUpperCase() ?? '?'}
               </Link>
+              
               <Link href="/dreams/new" className="btn-primary" style={{ fontSize: '12px', padding: '8px 16px', textDecoration: 'none' }}>
                 + Nuevo sueño
               </Link>
@@ -211,7 +240,12 @@ export default function Dashboard() {
         <div style={{ padding: '24px 28px', flex: 1 }}>
 
           <FadeIn delay={0.1}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginBottom: '28px' }}>
+            <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
+                gap: '10px', 
+                marginBottom: '28px'
+                }}>
               {[
                 { label: 'Sueños totales',     value: totalDreams,      color: 'var(--text-primary)', glow: '#6655cc' },
                 { label: 'Emoción frecuente',  value: emocionFrecuente, color: '#cc7788',             glow: '#aa5566' },
@@ -308,6 +342,38 @@ export default function Dashboard() {
           <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
         </div>
       </div>
+      {isMobile && (
+      <nav style={{
+        background:     '#050512',
+        borderTop:      '0.5px solid var(--border-subtle)',
+        bottom:         0,
+        display:        'flex',
+        justifyContent: 'space-around',
+        left:           0,
+        padding:        '10px 0 14px',
+        position:       'fixed',
+        right:          0,
+        zIndex:         50,
+      }}>
+        {[
+          { icon: '⊞', href: '/dashboard', active: true  },
+          { icon: '◎', href: '/explore',   active: false },
+          { icon: '◈', href: '/stats',     active: false },
+          { icon: '◉', href: '/profile',   active: false },
+        ].map((item, i) => (
+          <Link key={i} href={item.href} style={{
+            alignItems:     'center',
+            color:          item.active ? 'var(--accent-purple)' : 'var(--text-muted)',
+            display:        'flex',
+            flexDirection:  'column',
+            fontSize:       '20px',
+            textDecoration: 'none',
+          }}>
+            {item.icon}
+          </Link>
+        ))}
+      </nav>
+    )}
     </main>
   )
 }

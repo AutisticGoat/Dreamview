@@ -7,6 +7,17 @@ export const authOptions = {
   providers: [
     CredentialsProvider({
       name: 'credentials',
+      cookies: {
+        sessionToken: {
+          name: `next-auth.session-token`,
+          options: {
+            httpOnly: true,
+            sameSite: 'lax',
+            path:     '/',
+            secure:   false,
+          },
+        },
+      },
       credentials: {
         email:    { label: 'Email',      type: 'email'    },
         password: { label: 'Contraseña', type: 'password' },

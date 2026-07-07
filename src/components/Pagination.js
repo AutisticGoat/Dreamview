@@ -48,14 +48,14 @@ export default function Pagination({ page, totalPages, onPageChange }) {
         onClick={() => onPageChange(page + 1)}
         disabled={page === totalPages}
         style={{
-          background:   'transparent',
-          border:       '0.5px solid var(--border-subtle)',
+          background: 'transparent',
+          border: '0.5px solid var(--border-subtle)',
           borderRadius: '8px',
-          color:        page === totalPages ? 'var(--text-muted)' : 'var(--text-secondary)',
-          cursor:       page === totalPages ? 'default' : 'pointer',
-          fontSize:     '13px',
-          opacity:      page === totalPages ? 0.4 : 1,
-          padding:      '6px 12px',
+          color: page === totalPages ? 'var(--text-muted)' : 'var(--text-secondary)',
+          cursor: page === totalPages ? 'default' : 'pointer',
+          fontSize: '13px',
+          opacity: page === totalPages ? 0.4 : 1,
+          padding: '6px 12px',
         }}
       >
         →
