@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import useIsMobile from '@/hooks/useIsMobile'
+import GlowSlider from '@/components/GlowSlider'
+import { motion } from 'framer-motion'
 import Link from 'next/link'
 
 export default function NewDreamPage() {
@@ -25,6 +27,33 @@ export default function NewDreamPage() {
     etiquetas:   [],
     simbolos:    [],
   })
+
+  useEffect(() => {
+    if (form.emociones.length === 0) {
+      document.body.style.background = '#07071a'
+      return
+    }
+
+    const colores = form.emociones.map(e => {
+      const emocion    = emociones.find(em => em.id === e.emotionId)
+      const intensidad = e.intensidad
+      const opacidad   = Math.round((intensidad / 5) * 80).toString(16).padStart(2, '0')
+      return `${emocion?.colorHex ?? '#6655cc'}${opacidad}`
+    })
+
+    const gradiente = colores.length === 1
+      ? `radial-gradient(ellipse at top right, ${colores[0]}, #07071a 60%)`
+      : `radial-gradient(ellipse at top right, ${colores[0]}, #07071a 50%), radial-gradient(ellipse at bottom left, ${colores[1]}, #07071a 50%)`
+
+    document.body.style.background = gradiente
+    document.body.style.transition = 'background 0.8s ease'
+  }, [form.emociones, emociones])
+
+  useEffect(() => {
+    return () => {
+      document.body.style.background = '#07071a'
+    }
+  }, [])
 
   useEffect(() => {
     if (status === 'unauthenticated') router.push('/auth/login')
@@ -181,7 +210,7 @@ export default function NewDreamPage() {
               value={form.titulo}
               onChange={handleChange}
               required
-              placeholder="¿Cómo llamarías este sueño?"
+              placeholder="¿Cómo llamarías este fragmento de tu subconsciente?"
               style={{ padding: '10px 14px' }}
             />
           </div>
@@ -212,7 +241,7 @@ export default function NewDreamPage() {
               onChange={handleChange}
               required
               rows={6}
-              placeholder="Describe tu sueño con el mayor detalle posible..."
+              placeholder="Describe cada detalle antes de que el olvido lo borre..."
               style={{ padding: '10px 14px', resize: 'none' }}
             />
           </div>
@@ -223,17 +252,16 @@ export default function NewDreamPage() {
               Intensidad general —{' '}
               <span style={{ color: 'var(--text-primary)' }}>{form.intensidad} / 5</span>
             </label>
-            <input
-              type="range"
-              name="intensidad"
-              min="1"
-              max="5"
-              value={form.intensidad}
+            <GlowSlider
+              min={1}
+              max={5}
+              value={parseInt(form.intensidad)}
               onChange={handleChange}
+              name="intensidad"
             />
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px' }}>
-              <span style={{ color: 'var(--text-muted)', fontSize: '10px' }}>Muy leve</span>
-              <span style={{ color: 'var(--text-muted)', fontSize: '10px' }}>Muy intenso</span>
+              <span style={{ color: 'var(--text-muted)', fontSize: '15px' }}>Muy leve</span>
+              <span style={{ color: 'var(--text-muted)', fontSize: '15px' }}>Muy intenso</span>
             </div>
           </div>
 
@@ -243,15 +271,50 @@ export default function NewDreamPage() {
           <div style={{ marginBottom: '28px' }}>
             <label style={{ color: 'var(--text-muted)', display: 'block', fontSize: '10px', letterSpacing: '0.1em', marginBottom: '12px', textTransform: 'uppercase' }}>
               Emociones presentes
+              {form.emociones.length > 0 && (() => {
+                const dominante = form.emociones.reduce((prev, curr) =>
+                  curr.intensidad > prev.intensidad ? curr : prev
+                )
+                const emocionDominante = emociones.find(e => e.id === dominante.emotionId)
+                return emocionDominante ? (
+                  <div style={{
+                    alignItems:   'center',
+                    display:      'flex',
+                    gap:          '8px',
+                    marginTop:    '12px',
+                  }}>
+                    <div style={{
+                      width:        '6px',
+                      height:       '6px',
+                      borderRadius: '50%',
+                      background:   emocionDominante.colorHex,
+                      boxShadow:    `0 0 6px ${emocionDominante.colorHex}88`,
+                      animation:    'pulse-glow 2s ease-in-out infinite',
+                    }} />
+                    <span style={{ color: 'var(--text-muted)', fontSize: '11px' }}>
+                      Emoción dominante:
+                    </span>
+                    <span style={{ color: emocionDominante.colorHex, fontSize: '11px', fontWeight: 500 }}>
+                      {emocionDominante.nombre} ({dominante.intensidad}/5)
+                    </span>
+                  </div>
+                ) : null
+              })()}
             </label>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
               {emociones.map(emocion => {
                 const seleccionada = form.emociones.find(e => e.emotionId === emocion.id)
                 return (
                   <div key={emocion.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
-                    <button
+                    <motion.button
                       type="button"
                       onClick={() => toggleEmocion(emocion.id)}
+                      whiletap={{ scale: 1.3 }}
+                      animate={{
+                        scale:     seleccionada ? 1.08 : 1,
+                        boxShadow: seleccionada ? `0 0 12px ${emocion.colorHex}66` : '0 0 0px transparent',
+                      }}
+                      transition={{ type: 'spring', stiffness: 500, damping: 12 }}
                       style={{
                         background:   seleccionada ? emocion.colorHex + '22' : 'transparent',
                         border:       `0.5px solid ${seleccionada ? emocion.colorHex : 'var(--border-subtle)'}`,
@@ -260,20 +323,22 @@ export default function NewDreamPage() {
                         cursor:       'pointer',
                         fontSize:     '12px',
                         padding:      '5px 14px',
-                        transition:   'all 0.2s ease',
                       }}
                     >
                       {emocion.nombre}
-                    </button>
+                    </motion.button>
+                    
                     {seleccionada && (
+                      
                       <div style={{ width: '80px' }}>
-                        <input
-                          type="range"
-                          min="1"
-                          max="5"
+                        
+                        <GlowSlider
+                          min={1}
+                          max={5}
                           value={seleccionada.intensidad}
                           onChange={(e) => updateIntensidadEmocion(emocion.id, e.target.value)}
-                          style={{ accentColor: emocion.colorHex }}
+                          color={emocion.colorHex}
+                          style={{ width: '80px' }}
                         />
                         <div style={{ color: 'var(--text-muted)', fontSize: '10px', textAlign: 'center' }}>
                           {seleccionada.intensidad}/5
@@ -299,7 +364,7 @@ export default function NewDreamPage() {
                 value={etiquetaInput}
                 onChange={(e) => setEtiquetaInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), agregarEtiqueta())}
-                placeholder="Escribe y presiona Enter o +"
+                placeholder="Una palabra que lo defina..."
                 style={{ padding: '8px 14px' }}
               />
               <button
@@ -347,7 +412,7 @@ export default function NewDreamPage() {
                 value={simboloInput}
                 onChange={(e) => setSimboloInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), agregarSimbolo())}
-                placeholder="Escribe y presiona Enter o +"
+                placeholder="Un objeto, lugar o figura..."
                 style={{ padding: '8px 14px' }}
               />
               <button

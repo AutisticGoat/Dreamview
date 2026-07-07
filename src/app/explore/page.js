@@ -149,7 +149,9 @@ export default function ExplorePage() {
           {!tieneData ? (
             <div style={{ alignItems: 'center', display: 'flex', flexDirection: 'column', gap: '16px', height: '100%', justifyContent: 'center', textAlign: 'center' }}>
               <div style={{ color: 'var(--text-muted)', fontSize: '32px', opacity: 0.3 }}>◎</div>
-              <p style={{ color: 'var(--text-muted)', fontSize: '13px' }}>Aún no hay sueños para visualizar</p>
+              <p style={{ color: 'var(--text-muted)', fontSize: '13px', lineHeight: 1.7 }}>
+                El mapa de tu subconsciente está en blanco.<br/>Cada sueño es un nodo por descubrir.
+              </p>
               <Link href="/dreams/new" className="btn-primary" style={{ fontSize: '13px', textDecoration: 'none' }}>Registra tu primer sueño</Link>
             </div>
           ) : (

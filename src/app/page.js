@@ -141,8 +141,7 @@ export default function Home() {
             position:      'absolute',
           }}>
             <div style={{ width: '0.5px', height: '40px', background: 'linear-gradient(to bottom, #6655cc55, transparent)' }} />
-            <span style={{ color: 'var(--text-muted)', fontSize: '10px', letterSpacing: '0.1em' }}>DESPLAZAR</span>
-          </div>
+            </div>
         </FadeIn>
 
         <StaggerList style={{

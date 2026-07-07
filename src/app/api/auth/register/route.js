@@ -6,7 +6,11 @@ import { z } from 'zod'
 const registerSchema = z.object({
   nombre:   z.string().min(2,  'El nombre debe tener al menos 2 caracteres'),
   email:    z.string().email(  'Email inválido'),
-  password: z.string().min(6,  'La contraseña debe tener al menos 6 caracteres'),
+  password: z.string()
+  .min(8, 'La contraseña debe tener al menos 8 caracteres')
+  .regex(/[A-Z]/, 'La contraseña debe tener al menos una mayúscula')
+  .regex(/[0-9]/, 'La contraseña debe tener al menos un número')
+  .regex(/[^a-zA-Z0-9]/, 'La contraseña debe tener al menos un carácter especial'),
 })
 
 export async function POST(request) {

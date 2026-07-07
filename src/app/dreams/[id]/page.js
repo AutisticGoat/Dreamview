@@ -6,6 +6,9 @@ import { useRouter, useParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { FadeIn, AnimatedLoader } from '@/components/animations'
+import ErrorMessage from '@/components/ErrorMessage'
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } from 'recharts'
+
 
 export default function DreamPage() {
   const isMobile = useIsMobile()
@@ -58,16 +61,13 @@ export default function DreamPage() {
 
   if (loading) return <AnimatedLoader />
 
-  if (error) {
-    return (
-      <main style={{ alignItems: 'center', background: 'var(--bg-base)', display: 'flex', justifyContent: 'center', minHeight: '100vh' }}>
-        <div style={{ textAlign: 'center' }}>
-          <p style={{ color: '#aa5566', marginBottom: '16px' }}>{error}</p>
-          <Link href="/dashboard" style={{ color: 'var(--accent-purple)', fontSize: '13px' }}>← Volver al dashboard</Link>
-        </div>
-      </main>
-    )
-  }
+  if (error) return (
+    <ErrorMessage
+      mensaje={error}
+      href="/dashboard"
+      hrefLabel="Volver al dashboard"
+    />
+  )
 
   const handleInterpretar = async () => {
     setInterpretando(true)
@@ -92,8 +92,25 @@ export default function DreamPage() {
   return (
     <main style={{ background: 'var(--bg-base)', minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>
 
-      <div className="glow-orb pulse" style={{ width: '300px', height: '300px', background: '#3d2d8a18', top: '-60px', right: '-40px' }} />
-      <div className="glow-orb pulse" style={{ width: '200px', height: '200px', background: '#1a3a6a12', bottom: '60px', left: '-20px', animationDelay: '2s' }} />
+      <div className="glow-orb pulse" style={{
+        width:      '300px',
+        height:     '300px',
+        background: dream.emotions[0]
+          ? `${dream.emotions[0].emotion.colorHex}40`
+          : '#3d2d8a40',
+        top:        '-60px',
+        right:      '-40px',
+      }} />
+      <div className="glow-orb pulse" style={{
+        width:         '200px',
+        height:        '200px',
+        background:    dream.emotions[1]
+          ? `${dream.emotions[1].emotion.colorHex}30`
+          : '#1a3a6a40',
+        bottom:        '60px',
+        left:          '-20px',
+        animationDelay:'2s',
+      }} />
 
       <header style={{ alignItems: 'center', borderBottom: '0.5px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', padding: isMobile ? '12px 16px' : '16px 32px' , position: 'relative', zIndex: 10 }}>
         <div style={{ alignItems: 'center', display: 'flex', gap: '16px' }}>
@@ -122,7 +139,7 @@ export default function DreamPage() {
           position: 'relative', 
           zIndex: 2 
         }}>
-        <FadeIn>
+        {/* <FadeIn> */}
 
           <div style={{ alignItems: 'center', display: 'flex', gap: '12px', marginBottom: '20px' }}>
             <span style={{ background: 'var(--bg-surface)', border: '0.5px solid var(--border-subtle)', borderRadius: '6px', color: 'var(--text-muted)', fontSize: '11px', padding: '4px 12px' }}>
@@ -135,6 +152,7 @@ export default function DreamPage() {
             </div>
           </div>
 
+          <FadeIn delay={0}>
           <h1 style={{ color: 'var(--text-primary)', fontSize: isMobile ? '20px' : '26px', fontWeight: 500, lineHeight: 1.25, marginBottom: '16px' }}>
             {dream.titulo}
           </h1>
@@ -143,26 +161,83 @@ export default function DreamPage() {
             {dream.descripcion}
           </p>
 
-          <hr className="divider" />
-
+          </FadeIn>
+          
           {dream.emotions.length > 0 && (
+          <FadeIn delay={0.1}>
             <div style={{ marginBottom: '28px' }}>
               <div className="section-title">Emociones</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+
+              <ResponsiveContainer width="100%" height={220}>
+                <RadarChart
+                  data={dream.emotions.map(e => ({
+                    emocion:   e.emotion.nombre,
+                    intensidad: e.intensidad,
+                    color:     e.emotion.colorHex,
+                  }))}
+                  margin={{ top: 10, right: 20, bottom: 10, left: 20 }}
+                >
+                  <PolarGrid
+                    stroke="#1e1e3a"
+                    strokeWidth={0.5}
+                  />
+                  <PolarAngleAxis
+                    dataKey="emocion"
+                    tick={{ fill: '#7777aa', fontSize: 11, fontFamily: 'var(--font-inter)' }}
+                  />
+                  <Radar
+                    dataKey="intensidad"
+                    stroke="#6655cc"
+                    fill="#6655cc"
+                    fillOpacity={0.15}
+                    strokeWidth={1.5}
+                    dot={(props) => {
+                      const { cx, cy, payload } = props
+                      return (
+                        <circle
+                          key={payload.emocion}
+                          cx={cx}
+                          cy={cy}
+                          r={4}
+                          fill={payload.color}
+                          stroke={payload.color}
+                          strokeWidth={1}
+                          style={{ filter: `drop-shadow(0 0 4px ${payload.color}88)` }}
+                        />
+                      )
+                    }}
+                  />
+                </RadarChart>
+              </ResponsiveContainer>
+
+              {/* Lista de emociones debajo del radar */}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>
                 {dream.emotions.map(e => (
-                  <div key={e.emotionId} style={{ alignItems: 'center', display: 'flex', gap: '12px' }}>
-                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: e.emotion.colorHex, boxShadow: `0 0 6px ${e.emotion.colorHex}66`, flexShrink: 0 }} />
-                    <span style={{ color: e.emotion.colorHex, fontSize: '12px', width: '90px' }}>{e.emotion.nombre}</span>
-                    <div style={{ flex: 1, height: '2px', background: 'var(--border-dim)', borderRadius: '1px' }}>
-                      <div style={{ background: e.emotion.colorHex, borderRadius: '1px', height: '100%', opacity: 0.7, width: `${(e.intensidad / 5) * 100}%`, transition: 'width 0.6s ease' }} />
-                    </div>
-                    <span style={{ color: 'var(--text-muted)', fontSize: '10px', width: '28px', textAlign: 'right' }}>{e.intensidad}/5</span>
+                  <div key={e.emotionId} style={{ alignItems: 'center', display: 'flex', gap: '6px' }}>
+                    <div style={{
+                      width:        '7px',
+                      height:       '7px',
+                      borderRadius: '50%',
+                      background:   e.emotion.colorHex,
+                      boxShadow:    `0 0 6px ${e.emotion.colorHex}66`,
+                      animation:    'pulse-glow 2.5s ease-in-out infinite',
+                      flexShrink:   0,
+                    }} />
+                    <span style={{ color: e.emotion.colorHex, fontSize: '11px' }}>
+                      {e.emotion.nombre}
+                    </span>
+                    <span style={{ color: 'var(--text-muted)', fontSize: '10px' }}>
+                      {e.intensidad}/5
+                    </span>
                   </div>
                 ))}
               </div>
-            </div>
-          )}
 
+            </div>
+          </FadeIn>
+        )}
+
+          <FadeIn delay={0.2}>
           {dream.tags.length > 0 && (
             <div style={{ marginBottom: '28px' }}>
               <div className="section-title">Etiquetas</div>
@@ -173,7 +248,9 @@ export default function DreamPage() {
               </div>
             </div>
           )}
+          </FadeIn>
 
+          <FadeIn delay={0.3}>
           {dream.symbols.length > 0 && (
             <div style={{ marginBottom: '28px' }}>
               <div className="section-title">Símbolos</div>
@@ -184,13 +261,15 @@ export default function DreamPage() {
               </div>
             </div>
           )}
+          </FadeIn>
 
+
+          <FadeIn delay={0.4}>
           <hr className="divider" />
-
           <div style={{ marginTop: '8px' }}>
             <div className="section-title">Conexiones</div>
             {conexiones.length === 0 ? (
-              <div className="card" style={{ alignItems: 'center', display: 'flex', gap: '14px', padding: '14px 16px' }}>
+              <div className="border" style={{ alignItems: 'center', display: 'flex', gap: '14px', padding: '14px 16px' }}>
                 <div style={{ alignItems: 'center', background: '#1e1535', borderRadius: '8px', color: 'var(--accent-purple)', display: 'flex', fontSize: '16px', height: '32px', justifyContent: 'center', width: '32px', flexShrink: 0 }}>⟡</div>
                 <span style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>Este sueño no tiene conexiones con otros aún</span>
               </div>
@@ -198,7 +277,7 @@ export default function DreamPage() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {conexiones.map((conexion, i) => (
                   <Link key={i} href={`/dreams/${conexion.suenoConectado.id}`} style={{ textDecoration: 'none' }}>
-                    <div className="card" style={{ padding: '14px 16px' }}>
+                    <div className="card" style={{ padding: '14px 16px', border: '0.5px solid #2a3a6a' }}>
                       <div style={{ alignItems: 'center', display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
                         <div style={{ alignItems: 'center', display: 'flex', gap: '10px' }}>
                           <div style={{ alignItems: 'center', background: '#1e1535', borderRadius: '6px', color: 'var(--accent-purple)', display: 'flex', fontSize: '13px', height: '26px', justifyContent: 'center', width: '26px', flexShrink: 0 }}>⟡</div>
@@ -228,13 +307,16 @@ export default function DreamPage() {
               </div>
             )}
           </div>
+          </FadeIn>
+
+          <FadeIn delay={0.5}>1
           <hr className="divider" />
 
           <div style={{ marginTop: '8px' }}>
             <div className="section-title">Interpretación</div>
 
             {!interpretacion ? (
-              <div className="card" style={{ padding: '16px' }}>
+              <div className="card" style={{ padding: '16px', border: '0.5px solid #3d2a6a'}}>
                 <p style={{ color: 'var(--text-muted)', fontSize: '12px', marginBottom: '14px', lineHeight: 1.6 }}>
                   Genera una interpretación psicológica de este sueño basada en su contenido, emociones y conexiones con otros sueños.
                 </p>
@@ -265,8 +347,10 @@ export default function DreamPage() {
               </div>
             )}
           </div>
+          </FadeIn>
 
-        </FadeIn>
+
+        {/* </FadeIn> */}
       </div>
       {isMobile && (
       <nav style={{

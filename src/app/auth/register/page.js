@@ -52,6 +52,13 @@ export default function RegisterPage() {
     }
   }
 
+  const validarPassword = (pwd) => ({
+    largo:    pwd.length >= 8,
+    mayuscula: /[A-Z]/.test(pwd),
+    numero:   /[0-9]/.test(pwd),
+    especial: /[^a-zA-Z0-9]/.test(pwd),
+  })
+
   return (
     <main style={{ 
         alignItems: 'center', 
@@ -111,9 +118,32 @@ export default function RegisterPage() {
                 <label style={{ color: 'var(--text-muted)', display: 'block', fontSize: '10px', letterSpacing: '0.1em', marginBottom: '8px', textTransform: 'uppercase' }}>
                   Contraseña
                 </label>
-                <input type="password" name="password" value={form.password} onChange={handleChange} required minLength={6} placeholder="Mínimo 6 caracteres" style={{ padding: '10px 14px' }} />
-              </div>
 
+                {form.password && (() => {
+                  const v = validarPassword(form.password)
+                  return (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '8px' }}>
+                      {[
+                        { ok: v.largo,     texto: 'Mínimo 8 caracteres' },
+                        { ok: v.mayuscula, texto: 'Al menos una mayúscula' },
+                        { ok: v.numero,    texto: 'Al menos un número' },
+                        { ok: v.especial,  texto: 'Al menos un carácter especial' },
+                      ].map((req, i) => (
+                        <div key={i} style={{ alignItems: 'center', display: 'flex', gap: '6px' }}>
+                          <span style={{ color: req.ok ? '#55aa77' : '#aa5566', fontSize: '12px' }}>
+                            {req.ok ? '✓' : '✗'}
+                          </span>
+                          <span style={{ color: req.ok ? '#55aa77' : 'var(--text-muted)', fontSize: '11px' }}>
+                            {req.texto}
+                          </span>
+                        </div>
+                      ))}
+                      <br></br>
+                    </div>
+                  )
+                })()}
+                <input type="password" name="password" value={form.password} onChange={handleChange} required minLength={8} placeholder="..." style={{ padding: '10px 14px' }} />
+              </div>
               <div style={{ marginBottom: '24px' }}>
                 <label style={{ color: 'var(--text-muted)', display: 'block', fontSize: '10px', letterSpacing: '0.1em', marginBottom: '8px', textTransform: 'uppercase' }}>
                   Confirmar contraseña

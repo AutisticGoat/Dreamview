@@ -6,6 +6,8 @@ import { useRouter, useParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { FadeIn, AnimatedButton, AnimatedLoader } from '@/components/animations'
+import { SkeletonDreamDetail } from '@/components/Skeleton'
+import { motion } from 'framer-motion'
 
 export default function EditDreamPage() {
   const isMobile = useIsMobile()
@@ -28,6 +30,34 @@ export default function EditDreamPage() {
     etiquetas:   [],
     simbolos:    [],
   })
+
+  
+    useEffect(() => {
+      if (form.emociones.length === 0) {
+        document.body.style.background = '#07071a'
+        return
+      }
+  
+      const colores = form.emociones.map(e => {
+        const emocion    = emociones.find(em => em.id === e.emotionId)
+        const intensidad = e.intensidad
+        const opacidad   = Math.round((intensidad / 5) * 80).toString(16).padStart(2, '0')
+        return `${emocion?.colorHex ?? '#6655cc'}${opacidad}`
+      })
+  
+      const gradiente = colores.length === 1
+        ? `radial-gradient(ellipse at top right, ${colores[0]}, #07071a 60%)`
+        : `radial-gradient(ellipse at top right, ${colores[0]}, #07071a 50%), radial-gradient(ellipse at bottom left, ${colores[1]}, #07071a 50%)`
+  
+      document.body.style.background = gradiente
+      document.body.style.transition = 'background 0.8s ease'
+    }, [form.emociones, emociones])
+  
+    useEffect(() => {
+      return () => {
+        document.body.style.background = '#07071a'
+      }
+    }, [])
 
   useEffect(() => {
     if (status === 'unauthenticated') router.push('/auth/login')
@@ -107,7 +137,12 @@ export default function EditDreamPage() {
     }
   }
 
-  if (loadingData) return <AnimatedLoader />
+  if (loading) return (
+  <main style={{ background: 'var(--bg-base)', minHeight: '100vh' }}>
+    <header style={{ borderBottom: '0.5px solid var(--border-subtle)', padding: '16px 32px', height: '57px' }} />
+    <SkeletonDreamDetail />
+  </main>
+)
 
   return (
     <main style={{ background: 'var(--bg-base)', minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>
@@ -162,15 +197,63 @@ export default function EditDreamPage() {
             <hr className="divider" />
 
             <div style={{ marginBottom: '28px' }}>
-              <label style={{ color: 'var(--text-muted)', display: 'block', fontSize: '10px', letterSpacing: '0.1em', marginBottom: '12px', textTransform: 'uppercase' }}>Emociones presentes</label>
+              <label style={{ color: 'var(--text-muted)', display: 'block', fontSize: '10px', letterSpacing: '0.1em', marginBottom: '12px', textTransform: 'uppercase' }}>Emociones presentes
+              {form.emociones.length > 0 && (() => {
+                const dominante = form.emociones.reduce((prev, curr) =>
+                  curr.intensidad > prev.intensidad ? curr : prev
+                )
+                const emocionDominante = emociones.find(e => e.id === dominante.emotionId)
+                return emocionDominante ? (
+                  <div style={{
+                    alignItems:   'center',
+                    display:      'flex',
+                    gap:          '8px',
+                    marginTop:    '12px',
+                  }}>
+                    <div style={{
+                      width:        '6px',
+                      height:       '6px',
+                      borderRadius: '50%',
+                      background:   emocionDominante.colorHex,
+                      boxShadow:    `0 0 6px ${emocionDominante.colorHex}88`,
+                      animation:    'pulse-glow 2s ease-in-out infinite',
+                    }} />
+                    <span style={{ color: 'var(--text-muted)', fontSize: '11px' }}>
+                      Emoción dominante:
+                    </span>
+                    <span style={{ color: emocionDominante.colorHex, fontSize: '11px', fontWeight: 500 }}>
+                      {emocionDominante.nombre} ({dominante.intensidad}/5)
+                    </span>
+                  </div>
+                ) : null
+              })()}
+              </label>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                 {emociones.map(emocion => {
                   const seleccionada = form.emociones.find(e => e.emotionId === emocion.id)
                   return (
                     <div key={emocion.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
-                      <button type="button" onClick={() => toggleEmocion(emocion.id)} style={{ background: seleccionada ? emocion.colorHex + '22' : 'transparent', border: `0.5px solid ${seleccionada ? emocion.colorHex : 'var(--border-subtle)'}`, borderRadius: '20px', color: seleccionada ? emocion.colorHex : 'var(--text-muted)', cursor: 'pointer', fontSize: '12px', padding: '5px 14px', transition: 'all 0.2s ease' }}>
+                      <motion.button
+                        type="button"
+                        onClick={() => toggleEmocion(emocion.id)}
+                        whileTap={{ scale: 1.3 }}
+                        animate={{
+                          scale:     seleccionada ? 1.08 : 1,
+                          boxShadow: seleccionada ? `0 0 12px ${emocion.colorHex}66` : '0 0 0px transparent',
+                        }}
+                        transition={{ type: 'spring', stiffness: 500, damping: 12 }}
+                        style={{
+                          background:   seleccionada ? emocion.colorHex + '22' : 'transparent',
+                          border:       `0.5px solid ${seleccionada ? emocion.colorHex : 'var(--border-subtle)'}`,
+                          borderRadius: '20px',
+                          color:        seleccionada ? emocion.colorHex : 'var(--text-muted)',
+                          cursor:       'pointer',
+                          fontSize:     '12px',
+                          padding:      '5px 14px',
+                        }}
+                      >
                         {emocion.nombre}
-                      </button>
+                      </motion.button>
                       {seleccionada && (
                         <div style={{ width: '80px' }}>
                           <input type="range" min="1" max="5" value={seleccionada.intensidad} onChange={(e) => updateIntensidadEmocion(emocion.id, e.target.value)} style={{ accentColor: emocion.colorHex }} />
@@ -188,7 +271,7 @@ export default function EditDreamPage() {
             <div style={{ marginBottom: '28px' }}>
               <label style={{ color: 'var(--text-muted)', display: 'block', fontSize: '10px', letterSpacing: '0.1em', marginBottom: '8px', textTransform: 'uppercase' }}>Etiquetas</label>
               <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
-                <input type="text" value={etiquetaInput} onChange={(e) => setEtiquetaInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), agregarEtiqueta())} placeholder="Escribe y presiona Enter o +" style={{ padding: '8px 14px' }} />
+                <input type="text" value={etiquetaInput} onChange={(e) => setEtiquetaInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), agregarEtiqueta())} placeholder="Una palabra que lo defina..." style={{ padding: '8px 14px' }} />
                 <button type="button" onClick={agregarEtiqueta} style={{ background: 'var(--bg-surface)', border: '0.5px solid var(--border-subtle)', borderRadius: '8px', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '18px', flexShrink: 0, padding: '8px 14px' }}>+</button>
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
@@ -204,7 +287,7 @@ export default function EditDreamPage() {
             <div style={{ marginBottom: '32px' }}>
               <label style={{ color: 'var(--text-muted)', display: 'block', fontSize: '10px', letterSpacing: '0.1em', marginBottom: '8px', textTransform: 'uppercase' }}>Símbolos</label>
               <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
-                <input type="text" value={simboloInput} onChange={(e) => setSimboloInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), agregarSimbolo())} placeholder="Escribe y presiona Enter o +" style={{ padding: '8px 14px' }} />
+                <input type="text" value={simboloInput} onChange={(e) => setSimboloInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), agregarSimbolo())} placeholder="Un objeto, lugar o figura..." style={{ padding: '8px 14px' }} />
                 <button type="button" onClick={agregarSimbolo} style={{ background: 'var(--bg-surface)', border: '0.5px solid var(--border-subtle)', borderRadius: '8px', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '18px', flexShrink: 0, padding: '8px 14px' }}>+</button>
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>

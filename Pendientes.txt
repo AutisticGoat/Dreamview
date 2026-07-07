@@ -1,0 +1,32 @@
+- Mantener sesiones cargadas
+- Confirmación de creación de cuenta mediante correo electrónico
+- Refuerzo de seguridad de contraseña (mínimo de largo, caracteres especiales)
+- App
+- Mejores pantallas de error 
+- Notificaciones
+
+
+Características pendientes y posibles
+Alta prioridad
+
+Calendario de sueños (heatmap mensual)
+Exportar datos (PDF o CSV)
+
+IA
+
+Análisis comparativo entre sueños conectados usando Gemini
+Detección automática de patrones emocionales recurrentes
+Resumen mensual generado por IA
+
+Baja prioridad / futuro
+
+Foto de perfil
+Sueños privados vs públicos
+Modo offline con borradores
+Notificaciones o recordatorios
+Deploy a Hostinger
+
+Mejoras técnicas
+
+Optimización de consultas Prisma con índices
+Manejo de errores más detallado en el frontend

@@ -10,6 +10,7 @@ import {
   CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from 'recharts'
 import { SkeletonStat, SkeletonBox } from '@/components/Skeleton'
+import DreamCalendar from '@/components/DreamCalendar'
 
 function CustomTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null
@@ -59,7 +60,9 @@ export default function StatsPage() {
 
   if (loading) return (
   <main style={{ background: 'var(--bg-base)', display: 'flex', minHeight: '100vh' }}>
-    <aside style={{ width: '56px', background: '#050512', borderRight: '0.5px solid var(--border-subtle)', flexShrink: 0 }} />
+    {!isMobile && (
+      <aside style={{ width: '56px', background: '#050512', borderRight: '0.5px solid var(--border-subtle)', flexShrink: 0 }} />
+    )}
     <div style={{ flex: 1, padding: '32px' }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '24px' }}>
         <SkeletonStat />
@@ -140,7 +143,9 @@ export default function StatsPage() {
         {!tieneData ? (
           <div style={{ alignItems: 'center', display: 'flex', flexDirection: 'column', gap: '16px', padding: '80px 0', textAlign: 'center' }}>
             <div style={{ color: 'var(--text-muted)', fontSize: '28px', opacity: 0.4 }}>◈</div>
-            <p style={{ color: 'var(--text-muted)', fontSize: '13px' }}>Aún no hay suficientes datos para mostrar estadísticas</p>
+           <p style={{ color: 'var(--text-muted)', fontSize: '13px', lineHeight: 1.7 }}>
+            Los patrones emergen con el tiempo.<br/>Registra tus primeros sueños para revelarlos.
+          </p>
             <Link href="/dreams/new" className="btn-primary" style={{ fontSize: '13px', textDecoration: 'none' }}>
               Registra tu primer sueño
             </Link>
@@ -229,6 +234,8 @@ export default function StatsPage() {
                 )}
               </ResponsiveContainer>
             </div>
+            <div className="section-title" style={{ marginTop: '24px' }}>Calendario</div>
+            <DreamCalendar />
 
             {/* Top listas */}
             <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',  gap: '16px' }}>

@@ -53,7 +53,9 @@ export default function Dashboard() {
 
   if (status === 'loading' || loading) return (
   <main style={{ background: 'var(--bg-base)', display: 'flex', minHeight: '100vh' }}>
-    <aside style={{ width: '56px', background: '#050512', borderRight: '0.5px solid var(--border-subtle)', flexShrink: 0 }} />
+    {!isMobile && (
+      <aside style={{ width: '56px', background: '#050512', borderRight: '0.5px solid var(--border-subtle)', flexShrink: 0 }} />
+    )}
     <div style={{ flex: 1, padding: '24px 28px' }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginBottom: '28px' }}>
         <SkeletonStat />
@@ -279,9 +281,11 @@ export default function Dashboard() {
                   <p style={{ color: 'var(--text-muted)', fontSize: '13px' }}>No se encontraron sueños con esos filtros</p>
                 ) : (
                   <>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '13px' }}>Tu archivo de sueños está vacío</p>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '13px', lineHeight: 1.7 }}>
+                      Tu archivo onírico está en silencio.<br/>
+                    </p>
                     <Link href="/dreams/new" className="btn-primary" style={{ fontSize: '13px', textDecoration: 'none' }}>
-                      Registra tu primer sueño
+                      Registrar tu primer sueño
                     </Link>
                   </>
                 )}

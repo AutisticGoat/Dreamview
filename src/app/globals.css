@@ -49,8 +49,8 @@ body {
 /* ── Scrollbar ── */
 ::-webkit-scrollbar       { width: 4px; }
 ::-webkit-scrollbar-track { background: var(--bg-base); }
-::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 2px; }
-::-webkit-scrollbar-thumb:hover { background: var(--accent-purple-dim); }
+::-webkit-scrollbar-thumb { background: linear-gradient(to bottom, #6655cc, #3a7fc1); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: linear-gradient(to bottom, #7766dd, #4a9eda); }
 
 /* ── Selección de texto ── */
 ::selection {
@@ -73,7 +73,8 @@ input, textarea {
 
 input::placeholder,
 textarea::placeholder {
-  color: var(--text-dim);
+  color:      var(--text-dim);
+  font-style: italic;
 }
 
 input:focus,
@@ -143,9 +144,8 @@ input[type="date"] {
 
 .btn-danger:hover { color: #cc7788; }
 
-/* ── Cards ── */
 .card {
-  background:    var(--bg-surface);
+  background:    linear-gradient(135deg, #0e0e24 0%, #0c0c20 50%, #0e0e24 100%);
   border:        0.5px solid var(--border-subtle);
   border-radius: 12px;
   padding:       16px;
@@ -244,6 +244,11 @@ input[type="date"] {
   50%       { opacity: 0.6; }
 }
 
+@keyframes skeleton-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
 .fade-in { animation: fadeIn 0.4s ease forwards; }
 
 .pulse { animation: pulse-glow 3s ease-in-out infinite; }
@@ -258,7 +263,23 @@ main {
   background: transparent !important;
 }
 
-@keyframes skeleton-shimmer {
-  0%   { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+/* Títulos con gradiente */
+h1, h2 {
+  background:             linear-gradient(135deg, #d0c8f8 0%, #a090ee 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip:         text;
+}
+
+.card:hover {
+  border-color: #2a2a50;
+  box-shadow:   0 8px 32px #6655cc12;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 4px 20px #6655cc33;
+}
+
+.bg-dynamic {
+  background: var(--dynamic-bg, transparent) !important;
 }
