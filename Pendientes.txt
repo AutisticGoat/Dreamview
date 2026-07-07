@@ -1,32 +1,34 @@
+Características pendientes y posibles
+Esta lista de características fue sugerida por Claude y puede que algunas no se terminen implementando
+
+Alta prioridad: 
 - Mantener sesiones cargadas
-- Confirmación de creación de cuenta mediante correo electrónico
-- Refuerzo de seguridad de contraseña (mínimo de largo, caracteres especiales)
-- App
-- Mejores pantallas de error 
 - Notificaciones
 
+Exportación:
+- Exportar datos (PDF o CSV)
 
-Características pendientes y posibles
-Alta prioridad
+IA:
+- Análisis comparativo entre sueños conectados usando Gemini
+- Detección automática de patrones emocionales recurrentes
+- Resumen mensual generado por IA
 
-Calendario de sueños (heatmap mensual)
-Exportar datos (PDF o CSV)
+Visual
+- Cursor personalizado
+- Animación de escritura en detalle
+- Contador de emociones seleccionadas
+- Orbes que reaccionan al scroll
+- Transiciones entre páginas
+- Sonido ambiental opcional
 
-IA
+Baja prioridad / futuro: 
+- Foto de perfil
+- Sueños privados vs públicos
+- Modo offline con borradores
+- Deploy a Hostinger
+- Confirmación de cuenta por correo
+- App nativa
 
-Análisis comparativo entre sueños conectados usando Gemini
-Detección automática de patrones emocionales recurrentes
-Resumen mensual generado por IA
-
-Baja prioridad / futuro
-
-Foto de perfil
-Sueños privados vs públicos
-Modo offline con borradores
-Notificaciones o recordatorios
-Deploy a Hostinger
-
-Mejoras técnicas
-
-Optimización de consultas Prisma con índices
-Manejo de errores más detallado en el frontend
+Mejoras técnicas:
+- Optimización de consultas Prisma con índices
+- Manejo de errores más detallado en el frontend

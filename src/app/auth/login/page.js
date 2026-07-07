@@ -15,6 +15,7 @@ function LoginForm() {
   const [form, setForm]       = useState({ email: '', password: '' })
   const [error, setError]     = useState('')
   const [loading, setLoading] = useState(false)
+  const [rememberMe, setRememberMe] = useState(false)
 
   const registered = searchParams.get('registered')
 
@@ -31,6 +32,7 @@ function LoginForm() {
       const result = await signIn('credentials', {
         email:    form.email,
         password: form.password,
+        rememberMe: rememberMe.toString(),
         redirect: false,
       })
 
@@ -103,6 +105,24 @@ function LoginForm() {
                   Contraseña
                 </label>
                 <input type="password" name="password" value={form.password} onChange={handleChange} required placeholder="Tu contraseña" style={{ padding: '10px 14px' }} />
+              </div>
+
+              <div style={{ alignItems: 'center', display: 'flex', gap: '8px', marginBottom: '20px' }}>
+                <input
+                  type="checkbox"
+                  id="rememberMe"
+                  checked={rememberMe}
+                  onChange={e => setRememberMe(e.target.checked)}
+                  style={{
+                    accentColor: 'var(--accent-purple)',
+                    cursor:      'pointer',
+                    width:       '14px',
+                    height:      '14px',
+                  }}
+                />
+                <label htmlFor="rememberMe" style={{ color: 'var(--text-muted)', cursor: 'pointer', fontSize: '12px' }}>
+                  Recuérdame
+                </label>
               </div>
 
               <AnimatedButton

@@ -19,8 +19,9 @@ export const authOptions = {
         },
       },
       credentials: {
-        email:    { label: 'Email',      type: 'email'    },
+        email:    { label: 'Email',      type: 'email' },
         password: { label: 'Contraseña', type: 'password' },
+        rememberMe: { label: 'Recuérdame', type: 'text' },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
@@ -48,6 +49,7 @@ export const authOptions = {
           id:     user.id,
           email:  user.email,
           nombre: user.nombre,
+          rememberMe: credentials.rememberMe === 'true',
         }
       }
     })
@@ -55,8 +57,9 @@ export const authOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id     = user.id
-        token.nombre = user.nombre
+        token.id          = user.id
+        token.nombre      = user.nombre
+        token.rememberMe  = user.rememberMe
       }
       return token
     },
@@ -72,7 +75,8 @@ export const authOptions = {
     signIn: '/auth/login',
   },
   session: {
-    strategy: 'jwt',
+    strategy:  'jwt',
+    maxAge:    30 * 24 * 60 * 60, // 30 días por defecto
   },
   secret: process.env.NEXTAUTH_SECRET,
 }

@@ -3,6 +3,9 @@
 import useIsMobile from '@/hooks/useIsMobile'
 import Link from 'next/link'
 import { FadeIn, FadeInSimple, StaggerList, StaggerItem } from '@/components/animations'
+import { useEffect } from 'react'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 
 export default function Home() {
   const features = [
@@ -11,6 +14,14 @@ export default function Home() {
     { icon: '◈', title: 'Visualización',      desc: 'Explora tu mundo onírico mediante grafos y timelines' },
   ]
   const isMobile = useIsMobile()
+  const { data: session, status } = useSession()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (status === 'authenticated') {
+      router.push('/dashboard')
+    }
+  }, [status, router])
 
   return (
     <main style={{ background: 'var(--bg-base)', minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>
