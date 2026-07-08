@@ -1,13 +1,12 @@
-import { Inter } from 'next/font/google'
+import { Outfit } from 'next/font/google'
 import './globals.css'
 import SessionProvider from '@/components/SessionProvider'
 import ParticlesBackground from '@/components/ParticlesBackground'
-
-import { Outfit } from 'next/font/google'
+import AnimatedLayout from '@/components/AnimatedLayout'
 
 const outfit = Outfit({
   subsets:  ['latin'],
-  variable: '--font-inter', // mantenemos la variable para no cambiar referencias
+  variable: '--font-inter',
   weight:   ['300', '400', '500', '600'],
 })
 
@@ -23,7 +22,9 @@ export default function RootLayout({ children }) {
         <SessionProvider>
           <ParticlesBackground />
           <div style={{ position: 'relative', zIndex: 1 }}>
-            {children}
+            <AnimatedLayout>
+              {children}
+            </AnimatedLayout>
           </div>
         </SessionProvider>
       </body>

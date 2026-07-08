@@ -309,7 +309,7 @@ export default function DreamPage() {
           </div>
           </FadeIn>
 
-          <FadeIn delay={0.5}>1
+          <FadeIn delay={0.5}>
           <hr className="divider" />
 
           <div style={{ marginTop: '8px' }}>

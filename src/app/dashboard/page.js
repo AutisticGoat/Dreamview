@@ -101,7 +101,7 @@ export default function Dashboard() {
   })()
 
   return (
-    <main style={{ background: 'var(--bg-base)', display: 'flex', minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>
+    <main style={{ background: 'var(--bg-base)', display: 'flex', minHeight: '100vh', position: 'relative', overflow: 'hidden', marginLeft: isMobile ? 0 : '56px',}}>
 
       {/* Orbes */}
       <div className="glow-orb pulse" style={{ width: '300px', height: '300px', background: '#3d2d8a18', top: '-60px', right: '80px' }} />
@@ -115,10 +115,14 @@ export default function Dashboard() {
         flexDirection: 'column',
         alignItems:    'center',
         padding:       '20px 0',
+        height:        '100vh',
         gap:           '6px',
         width:         '56px',
-        position:      'relative',
         zIndex:        10,
+        position: 'fixed',
+        top:      0,
+        left:     0,
+        height:   '100vh',
       }}>
         <PulsingDot style={{ marginBottom: '16px' }} />
         {[
@@ -142,42 +146,47 @@ export default function Dashboard() {
             {item.icon}
           </Link>
         ))}
-        <div style={{ flex: 1 }} />
-        <Link href="/profile" title="Perfil" style={{
-          alignItems:     'center',
-          background:     'transparent',
-          borderRadius:   '8px',
-          color:          'var(--text-muted)',
-          display:        'flex',
-          fontSize:       '16px',
-          height:         '36px',
-          justifyContent: 'center',
-          textDecoration: 'none',
-          width:          '36px',
-         
+        <div style={{
+          bottom:        '16px',
+          display:       'flex',
+          flexDirection: 'column',
+          gap:           '6px',
+          position:      'absolute',
         }}>
-          {session?.user?.nombre?.[0]?.toUpperCase() ?? '?'}
-          ◉
-        </Link>
-        <button
-          onClick={() => signOut({ callbackUrl: '/auth/login' })}
-          title="Cerrar sesión"
-          style={{
+          <Link href="/profile" title="Perfil" style={{
             alignItems:     'center',
             background:     'transparent',
-            border:         'none',
             borderRadius:   '8px',
             color:          'var(--text-muted)',
-            cursor:         'pointer',
             display:        'flex',
             fontSize:       '16px',
             height:         '36px',
             justifyContent: 'center',
+            textDecoration: 'none',
             width:          '36px',
-          }}
-        >
-          ⎋
-        </button>
+          }}>
+            ◉
+          </Link>
+          <button
+            onClick={() => signOut({ callbackUrl: '/auth/login' })}
+            title="Cerrar sesión"
+            style={{
+              alignItems:     'center',
+              background:     'transparent',
+              border:         'none',
+              borderRadius:   '8px',
+              color:          'var(--text-muted)',
+              cursor:         'pointer',
+              display:        'flex',
+              fontSize:       '16px',
+              height:         '36px',
+              justifyContent: 'center',
+              width:          '36px',
+            }}
+          >
+            ⎋
+          </button>
+        </div>
       </aside>
 
       {/* Contenido principal */}
