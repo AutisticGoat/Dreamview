@@ -3,7 +3,6 @@ import './globals.css'
 import SessionProvider from '@/components/SessionProvider'
 import ParticlesBackground from '@/components/ParticlesBackground'
 import AnimatedLayout from '@/components/AnimatedLayout'
-import ScrollOrbs from '@/components/ScrollOrbs'
 
 const outfit = Outfit({
   subsets:  ['latin'],
@@ -22,7 +21,6 @@ export default function RootLayout({ children }) {
       <body className={outfit.variable}>
         <SessionProvider>
           <ParticlesBackground />
-          <ScrollOrbs />
           <div style={{ position: 'relative', zIndex: 1 }}>
             <AnimatedLayout>
               {children}
