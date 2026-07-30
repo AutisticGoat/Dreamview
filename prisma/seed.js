@@ -17,7 +17,7 @@ async function main() {
   ]
 
   for (const emocion of emociones) {
-    await prisma.emotion.upsert({
+    await prisma.Emotion.upsert({
       where:  { nombre: emocion.nombre },
       update: {},
       create: emocion,
