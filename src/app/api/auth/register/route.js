@@ -4,7 +4,6 @@ import prisma from '@/lib/db'
 import { z } from 'zod'
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
 
 const registerSchema = z.object({
   nombre:   z.string().min(2,  'El nombre debe tener al menos 2 caracteres'),
@@ -19,6 +18,7 @@ const registerSchema = z.object({
 export async function POST(request) {
   try {
     const body = await request.json()
+    const resend = new Resend(process.env.RESEND_API_KEY)
 
     const validacion = registerSchema.safeParse(body)
     if (!validacion.success) {

@@ -28,13 +28,14 @@ export const authOptions = {
           throw new Error('Ingresa tu email y contraseña')
         }
 
-        if (!user.emailVerificado) {
-          throw new Error('Debes verificar tu email antes de iniciar sesión')
-        }
-
+        
         const user = await prisma.user.findUnique({
           where: { email: credentials.email }
         })
+        
+        if (!user.emailVerificado) {
+          throw new Error('Debes verificar tu email antes de iniciar sesión')
+        }
 
         if (!user) {
           throw new Error('No existe una cuenta con ese email')
