@@ -25,7 +25,7 @@ export async function GET() {
     // Obtener todas las conexiones
     const dreamIds = dreams.map(d => d.id)
 
-    const conexiones = dreamIds.length === 0 ? [] : await prisma.dreamConnection.findMany({
+    const conexiones = dreamIds.length === 0 ? [] : await prisma.dreamconnection.findMany({
       where: {
         OR: [
           { dreamIdA: { in: dreamIds } },

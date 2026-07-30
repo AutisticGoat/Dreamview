@@ -101,7 +101,7 @@ export async function GET() {
 
     // Conexiones totales
     const dreamIds = dreams.map(d => d.id)
-    const conexiones = dreamIds.length === 0 ? 0 : await prisma.dreamConnection.count({
+    const conexiones = dreamIds.length === 0 ? 0 : await prisma.dreamconnection.count({
     where: {
         OR: [
         { dreamIdA: { in: dreamIds } },

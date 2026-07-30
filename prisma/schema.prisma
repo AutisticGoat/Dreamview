@@ -8,33 +8,37 @@ datasource db {
 }
 
 model dream {
-  id                                              Int               @id @default(autoincrement())
-  titulo                                          String
-  descripcion                                     String            @db.Text
-  intensidad                                      Int               @default(1)
-  fecha                                           DateTime
-  creadoEn                                        DateTime          @default(now())
-  userId                                          Int
-  interpretacion                                  String?           @db.Text
-  interpretadoEn                                  DateTime?
-  user                                            user              @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Dream_userId_fkey")
-  dreamconnection_dreamconnection_dreamIdATodream dreamconnection[] @relation("dreamconnection_dreamIdATodream")
-  dreamconnection_dreamconnection_dreamIdBTodream dreamconnection[] @relation("dreamconnection_dreamIdBTodream")
-  dreamemotion                                    dreamemotion[]
-  dreamsymbol                                     dreamsymbol[]
-  dreamtag                                        dreamtag[]
+  id             Int      @id @default(autoincrement())
+  titulo         String
+  descripcion    String   @db.Text
+  intensidad     Int      @default(1)
+  fecha          DateTime
+  creadoEn       DateTime @default(now())
+  userId         Int
+  interpretacion String?  @db.Text
+  interpretadoEn DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Dream_userId_fkey")
+
+  conexionesOrigen  dreamconnection[] @relation("dreamconnection_dreamIdATodream")
+  conexionesDestino dreamconnection[] @relation("dreamconnection_dreamIdBTodream")
+
+  emotions dreamemotion[]
+  tags     dreamtag[]
+  symbols  dreamsymbol[]
 
   @@index([userId, fecha], map: "Dream_userId_fecha_idx")
 }
 
 model dreamconnection {
-  id                                    Int      @id @default(autoincrement())
-  dreamIdA                              Int
-  dreamIdB                              Int
-  puntuacion                            Int
-  creadoEn                              DateTime @default(now())
-  dream_dreamconnection_dreamIdATodream dream    @relation("dreamconnection_dreamIdATodream", fields: [dreamIdA], references: [id], onDelete: Cascade, map: "DreamConnection_dreamIdA_fkey")
-  dream_dreamconnection_dreamIdBTodream dream    @relation("dreamconnection_dreamIdBTodream", fields: [dreamIdB], references: [id], onDelete: Cascade, map: "DreamConnection_dreamIdB_fkey")
+  id         Int      @id @default(autoincrement())
+  dreamIdA   Int
+  dreamIdB   Int
+  puntuacion Int
+  creadoEn   DateTime @default(now())
+
+  dreamA dream @relation("dreamconnection_dreamIdATodream", fields: [dreamIdA], references: [id], onDelete: Cascade, map: "DreamConnection_dreamIdA_fkey")
+  dreamB dream @relation("dreamconnection_dreamIdBTodream", fields: [dreamIdB], references: [id], onDelete: Cascade, map: "DreamConnection_dreamIdB_fkey")
 
   @@unique([dreamIdA, dreamIdB], map: "DreamConnection_dreamIdA_dreamIdB_key")
   @@index([dreamIdA], map: "DreamConnection_dreamIdA_idx")
@@ -44,9 +48,10 @@ model dreamconnection {
 model dreamemotion {
   dreamId    Int
   emotionId  Int
-  intensidad Int     @default(1)
-  dream      dream   @relation(fields: [dreamId], references: [id], onDelete: Cascade, map: "DreamEmotion_dreamId_fkey")
-  emotion    emotion @relation(fields: [emotionId], references: [id], map: "DreamEmotion_emotionId_fkey")
+  intensidad Int @default(1)
+
+  dream   dream   @relation(fields: [dreamId], references: [id], onDelete: Cascade, map: "DreamEmotion_dreamId_fkey")
+  emotion emotion @relation(fields: [emotionId], references: [id], map: "DreamEmotion_emotionId_fkey")
 
   @@id([dreamId, emotionId])
   @@index([emotionId], map: "DreamEmotion_emotionId_idx")
@@ -55,8 +60,9 @@ model dreamemotion {
 model dreamsymbol {
   dreamId  Int
   symbolId Int
-  dream    dream  @relation(fields: [dreamId], references: [id], onDelete: Cascade, map: "DreamSymbol_dreamId_fkey")
-  symbol   symbol @relation(fields: [symbolId], references: [id], onDelete: Cascade, map: "DreamSymbol_symbolId_fkey")
+
+  dream  dream  @relation(fields: [dreamId], references: [id], onDelete: Cascade, map: "DreamSymbol_dreamId_fkey")
+  symbol symbol @relation(fields: [symbolId], references: [id], onDelete: Cascade, map: "DreamSymbol_symbolId_fkey")
 
   @@id([dreamId, symbolId])
   @@index([symbolId], map: "DreamSymbol_symbolId_fkey")
@@ -65,52 +71,60 @@ model dreamsymbol {
 model dreamtag {
   dreamId Int
   tagId   Int
-  dream   dream @relation(fields: [dreamId], references: [id], onDelete: Cascade, map: "DreamTag_dreamId_fkey")
-  tag     tag   @relation(fields: [tagId], references: [id], onDelete: Cascade, map: "DreamTag_tagId_fkey")
+
+  dream dream @relation(fields: [dreamId], references: [id], onDelete: Cascade, map: "DreamTag_dreamId_fkey")
+  tag   tag   @relation(fields: [tagId], references: [id], onDelete: Cascade, map: "DreamTag_tagId_fkey")
 
   @@id([dreamId, tagId])
   @@index([tagId], map: "DreamTag_tagId_fkey")
 }
 
 model emotion {
-  id           Int            @id @default(autoincrement())
-  nombre       String         @unique(map: "Emotion_nombre_key")
-  colorHex     String
-  dreamemotion dreamemotion[]
+  id       Int    @id @default(autoincrement())
+  nombre   String @unique(map: "Emotion_nombre_key")
+  colorHex String
+
+  dreams dreamemotion[]
 }
 
 model symbol {
-  id          Int           @id @default(autoincrement())
-  nombre      String
-  frecuencia  Int           @default(1)
-  userId      Int
-  dreamsymbol dreamsymbol[]
-  user        user          @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Symbol_userId_fkey")
+  id         Int    @id @default(autoincrement())
+  nombre     String
+  frecuencia Int    @default(1)
+  userId     Int
+
+  user   User          @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Symbol_userId_fkey")
+  dreams dreamsymbol[]
 
   @@unique([nombre, userId], map: "Symbol_nombre_userId_key")
   @@index([userId], map: "Symbol_userId_fkey")
 }
 
 model tag {
-  id       Int        @id @default(autoincrement())
-  nombre   String
-  userId   Int
-  dreamtag dreamtag[]
-  user     user       @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Tag_userId_fkey")
+  id     Int    @id @default(autoincrement())
+  nombre String
+  userId Int
+
+  user   User       @relation(fields: [userId], references: [id], onDelete: Cascade, map: "Tag_userId_fkey")
+  dreams dreamtag[]
 
   @@unique([nombre, userId], map: "Tag_nombre_userId_key")
   @@index([userId], map: "Tag_userId_fkey")
 }
 
-model user {
+model User {
   id       Int      @id @default(autoincrement())
   nombre   String
   email    String   @unique(map: "User_email_key")
   password String
   creadoEn DateTime @default(now())
-  dream    dream[]
-  symbol   symbol[]
-  tag      tag[]
-  emailVerificado    Boolean  @default(false)
-  tokenVerificacion  String?  @unique
+
+  emailVerificado  Boolean @default(false)
+  tokenVerificacion String? @unique
+
+  dreams  dream[]
+  symbols symbol[]
+  tags    tag[]
+
+  @@map("user")
 }
