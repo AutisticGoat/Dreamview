@@ -111,4 +111,6 @@ model user {
   dream    dream[]
   symbol   symbol[]
   tag      tag[]
+  emailVerificado    Boolean  @default(false)
+  tokenVerificacion  String?  @unique
 }
