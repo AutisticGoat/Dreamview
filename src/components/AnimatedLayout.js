@@ -1,17 +1,19 @@
 'use client'
 
-import { AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { usePathname } from 'next/navigation'
-import PageTransition from '@/components/PageTransition'
 
 export default function AnimatedLayout({ children }) {
   const pathname = usePathname()
 
   return (
-    <AnimatePresence mode="wait">
-      <PageTransition key={pathname}>
-        {children}
-      </PageTransition>
-    </AnimatePresence>
+    <motion.div
+      key={pathname}
+      initial={{   opacity: 0 }}
+      animate={{   opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
+      {children}
+    </motion.div>
   )
 }

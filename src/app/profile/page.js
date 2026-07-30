@@ -6,6 +6,7 @@ import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { FadeIn, AnimatedButton, AnimatedLoader } from '@/components/animations'
+import ExportPDF from '@/components/ExportPDF'
 
 export default function ProfilePage() {
   const isMobile = useIsMobile()
@@ -213,8 +214,12 @@ export default function ProfilePage() {
 
           </form>
 
+          <hr className="divider" style={{ marginTop: '32px' }} />
+          <div style={{ marginTop: '24px' }}>
+            <ExportPDF />
+          </div>
+          
           <hr className="divider" style={{ marginTop: '40px' }} />
-
           <div style={{ marginTop: '24px' }}>
             <div className="section-title" style={{ color: '#aa5566' }}>Zona de peligro</div>
             <div className="card" style={{ padding: '16px' }}>

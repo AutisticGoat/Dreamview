@@ -41,7 +41,7 @@ export async function GET() {
       intensidad: dream.intensidad,
       fecha:      dream.fecha,
       emocion:    dream.emotions[0]?.emotion ?? null,
-    }))
+      }))
 
     // Construir enlaces
     const enlaces = conexiones.map(c => ({
