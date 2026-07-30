@@ -32,7 +32,7 @@ export async function POST(request, { params }) {
     }
 
     // Obtener los 3 sueños más conectados
-    const conexiones = await prisma.dreamConnection.findMany({
+    const conexiones = await prisma.dreamconnection.findMany({
       where: {
         OR: [
           { dreamIdA: dreamId },

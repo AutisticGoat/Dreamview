@@ -23,7 +23,7 @@ export async function GET(request, { params }) {
     }
 
     // Buscar conexiones donde el sueño aparece como A o como B
-    const conexiones = await prisma.dreamConnection.findMany({
+    const conexiones = await prisma.dreamconnection.findMany({
       where: {
         OR: [
           { dreamIdA: dreamId },
