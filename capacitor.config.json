@@ -1,0 +1,9 @@
+{
+  "appId": "com.dreamview.app",
+  "appName": "DreamView",
+  "server": {
+    "url": "https://dreamview-production.up.railway.app/",
+    "cleartext": false
+  },
+  "webDir": "public"
+}

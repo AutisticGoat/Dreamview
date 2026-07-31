@@ -255,6 +255,22 @@ export default function ProfilePage() {
             { icon: '◎', href: '/explore',   active: false },
             { icon: '◈', href: '/stats',     active: false },
             { icon: '◉', href: '/profile',   active: true },
+            <button
+              onClick={() => signOut({ callbackUrl: '/auth/login' })}
+              style={{
+                alignItems:     'center',
+                background:     'transparent',
+                border:         'none',
+                color:          'var(--text-muted)',
+                cursor:         'pointer',
+                display:        'flex',
+                flexDirection:  'column',
+                fontSize:       '20px',
+                padding:        0,
+              }}
+            >
+              ⎋
+            </button>
           ].map((item, i) => (
             <Link key={i} href={item.href} style={{
               alignItems:     'center',
