@@ -474,39 +474,16 @@ export default function NewDreamPage() {
           right:          0,
           zIndex:         50,
         }}>
-          {[
-            { icon: '⊞', href: '/dashboard', active: false },
-            { icon: '◎', href: '/explore',   active: false },
-            { icon: '◈', href: '/stats',     active: false },
-            { icon: '◉', href: '/profile',   active: false },
-            <button
-              onClick={() => signOut({ callbackUrl: '/auth/login' })}
-              style={{
-                alignItems:     'center',
-                background:     'transparent',
-                border:         'none',
-                color:          'var(--text-muted)',
-                cursor:         'pointer',
-                display:        'flex',
-                flexDirection:  'column',
-                fontSize:       '20px',
-                padding:        0,
-              }}
-            >
-              ⎋
-            </button>
-          ].map((item, i) => (
-            <Link key={i} href={item.href} style={{
-              alignItems:     'center',
-              color:          item.active ? 'var(--accent-purple)' : 'var(--text-muted)',
-              display:        'flex',
-              flexDirection:  'column',
-              fontSize:       '20px',
-              textDecoration: 'none',
-            }}>
-              {item.icon}
-            </Link>
-          ))}
+          <Link href="/dashboard" style={{ color: 'var(--text-muted)', display: 'flex', fontSize: '20px', textDecoration: 'none' }}>⊞</Link>
+          <Link href="/explore"   style={{ color: 'var(--text-muted)', display: 'flex', fontSize: '20px', textDecoration: 'none' }}>◎</Link>
+          <Link href="/stats"     style={{ color: 'var(--text-muted)', display: 'flex', fontSize: '20px', textDecoration: 'none' }}>◈</Link>
+          <Link href="/profile"   style={{ color: 'var(--text-muted)', display: 'flex', fontSize: '20px', textDecoration: 'none' }}>◉</Link>
+          <button
+            onClick={() => signOut({ callbackUrl: '/auth/login' })}
+            style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '20px', padding: 0 }}
+          >
+            ⎋
+          </button>
         </nav>
       )}
     </main>

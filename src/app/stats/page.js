@@ -317,54 +317,31 @@ export default function StatsPage() {
           </>
         )}
       </div>
-      {isMobile && (
-        <nav style={{
-          background:     '#050512',
-          borderTop:      '0.5px solid var(--border-subtle)',
-          bottom:         0,
-          display:        'flex',
-          justifyContent: 'space-around',
-          left:           0,
-          padding:        '10px 0 14px',
-          position:       'fixed',
-          right:          0,
-          zIndex:         50,
-        }}>
-          {[
-            { icon: '⊞', href: '/dashboard', active: false },
-            { icon: '◎', href: '/explore',   active: false },
-            { icon: '◈', href: '/stats',     active: true },
-            { icon: '◉', href: '/profile',   active: false },
+        {isMobile && (
+          <nav style={{
+            background:     '#050512',
+            borderTop:      '0.5px solid var(--border-subtle)',
+            bottom:         0,
+            display:        'flex',
+            justifyContent: 'space-around',
+            left:           0,
+            padding:        '10px 0 14px',
+            position:       'fixed',
+            right:          0,
+            zIndex:         50,
+          }}>
+            <Link href="/dashboard" style={{ color: 'var(--text-muted)', display: 'flex', fontSize: '20px', textDecoration: 'none' }}>⊞</Link>
+            <Link href="/explore"   style={{ color: 'var(--text-muted)', display: 'flex', fontSize: '20px', textDecoration: 'none' }}>◎</Link>
+            <Link href="/stats"     style={{ color: 'var(--text-muted)', display: 'flex', fontSize: '20px', textDecoration: 'none' }}>◈</Link>
+            <Link href="/profile"   style={{ color: 'var(--text-muted)', display: 'flex', fontSize: '20px', textDecoration: 'none' }}>◉</Link>
             <button
               onClick={() => signOut({ callbackUrl: '/auth/login' })}
-              style={{
-                alignItems:     'center',
-                background:     'transparent',
-                border:         'none',
-                color:          'var(--text-muted)',
-                cursor:         'pointer',
-                display:        'flex',
-                flexDirection:  'column',
-                fontSize:       '20px',
-                padding:        0,
-              }}
+              style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '20px', padding: 0 }}
             >
               ⎋
             </button>
-          ].map((item, i) => (
-            <Link key={i} href={item.href} style={{
-              alignItems:     'center',
-              color:          item.active ? 'var(--accent-purple)' : 'var(--text-muted)',
-              display:        'flex',
-              flexDirection:  'column',
-              fontSize:       '20px',
-              textDecoration: 'none',
-            }}>
-              {item.icon}
-            </Link>
-          ))}
-        </nav>
-      )}
+          </nav>
+        )}
     </main>
   )
 }
