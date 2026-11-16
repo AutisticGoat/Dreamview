@@ -25,12 +25,12 @@
     "jspdf": "^4.2.1",
     "next": "16.2.6",
     "next-auth": "^4.24.14",
+    "nodemailer": "^7.0.13",
     "prisma": "^6.19.3",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-tsparticles": "^2.12.2",
     "recharts": "^3.8.1",
-    "resend": "^6.18.1",
     "tsparticles-slim": "^2.12.0",
     "zod": "^4.4.3"
   },
