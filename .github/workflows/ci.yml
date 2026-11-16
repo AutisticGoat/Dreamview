@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [develop, main]
+  workflow_call:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL:    postgresql://ci:ci@localhost:5432/ci
+      NEXTAUTH_SECRET: ci-secret
+      NEXTAUTH_URL:    http://localhost:3000
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Validar schema de Prisma
+        run: npx prisma validate
+
+      - name: Lint (informativo)
+        run: npm run lint
+        continue-on-error: true
+
+      - name: Pruebas unitarias
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Auditoría de dependencias (informativa)
+        run: npm audit --audit-level=high
+        continue-on-error: true
