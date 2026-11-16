@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -65,7 +65,6 @@ model dreamsymbol {
   symbol symbol @relation(fields: [symbolId], references: [id], onDelete: Cascade, map: "DreamSymbol_symbolId_fkey")
 
   @@id([dreamId, symbolId])
-  @@index([symbolId], map: "DreamSymbol_symbolId_fkey")
 }
 
 model dreamtag {
@@ -76,7 +75,6 @@ model dreamtag {
   tag   tag   @relation(fields: [tagId], references: [id], onDelete: Cascade, map: "DreamTag_tagId_fkey")
 
   @@id([dreamId, tagId])
-  @@index([tagId], map: "DreamTag_tagId_fkey")
 }
 
 model emotion {
@@ -97,7 +95,6 @@ model symbol {
   dreams dreamsymbol[]
 
   @@unique([nombre, userId], map: "Symbol_nombre_userId_key")
-  @@index([userId], map: "Symbol_userId_fkey")
 }
 
 model tag {
@@ -109,7 +106,6 @@ model tag {
   dreams dreamtag[]
 
   @@unique([nombre, userId], map: "Tag_nombre_userId_key")
-  @@index([userId], map: "Tag_userId_fkey")
 }
 
 model User {

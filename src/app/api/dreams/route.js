@@ -40,8 +40,8 @@ export async function GET(request) {
       userId: session.user.id,
       ...(busqueda && {
         OR: [
-          { titulo:      { contains: busqueda } },
-          { descripcion: { contains: busqueda } },
+          { titulo:      { contains: busqueda, mode: 'insensitive' } },
+          { descripcion: { contains: busqueda, mode: 'insensitive' } },
         ]
       }),
       ...(emocion  && { emotions: { some: { emotion: { nombre: emocion } } } }),
