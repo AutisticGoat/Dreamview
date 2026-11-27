@@ -1,0 +1,52 @@
+name: Deploy Production
+
+on:
+  push:
+    branches: [master]
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    needs: ci
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      VERCEL_TOKEN:      ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID:     ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      DATABASE_URL:      ${{ secrets.DATABASE_URL }}
+      APP_URL:           ${{ vars.APP_URL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Preparar entorno (variables y migraciones)
+        run: bash scripts/env/prepare-env.sh production
+
+      - name: Desplegar
+        id: deploy
+        run: bash scripts/deploy/deploy.sh production
+
+      - name: Esperar a que la app responda
+        id: verify
+        run: bash scripts/deploy/verify.sh "$APP_URL"
+
+      - name: Pruebas de humo
+        id: smoke
+        run: bash scripts/test/smoke.sh "$APP_URL"
+
+      - name: Rollback automático
+        if: failure() && steps.deploy.outcome == 'success'
+        run: bash scripts/deploy/rollback.sh

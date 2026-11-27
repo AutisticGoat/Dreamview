@@ -26,7 +26,7 @@ export default function DreamCalendar() {
   useEffect(() => {
     setLoading(true)
     setDiaSeleccionado(null)
-    fetch(`/api/stats/calendar?year=${year}&month=${month}`)
+    fetch(`/api/calendar?year=${year}&month=${month}`)
       .then(res => res.json())
       .then(d => { setData(d); setLoading(false) })
   }, [year, month])
