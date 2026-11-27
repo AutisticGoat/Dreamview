@@ -9,11 +9,11 @@ ENTORNO="${1:?Uso: deploy.sh <staging|production>}"
 echo "Desplegando a $ENTORNO"
 npm install --global vercel@latest
 
-vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
-vercel build --prod --token="$VERCEL_TOKEN"
-URL=$(vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN")
+# El build se hace en Vercel: ahi estan las variables marcadas como Sensitive,
+# que no se pueden descargar con "vercel pull".
+URL=$(vercel deploy --prod --yes --token="$VERCEL_TOKEN")
 echo "Despliegue creado: $URL"
 
-vercel promote "$URL" --token="$VERCEL_TOKEN" || echo "promote omitido (el despliegue ya es el activo)"
+vercel promote "$URL" --yes --token="$VERCEL_TOKEN" || echo "promote omitido (el despliegue ya es el activo)"
 
 echo "url=$URL" >> "${GITHUB_OUTPUT:-/dev/null}"
