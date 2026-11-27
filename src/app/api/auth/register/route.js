@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs'
 import { randomBytes } from 'crypto'
 import prisma from '@/lib/db'
 import { enviarCorreoVerificacion } from '@/lib/mailer'
-
+import { registerSchema } from '@/lib/validators'
 
 export async function POST(request) {
   try {
