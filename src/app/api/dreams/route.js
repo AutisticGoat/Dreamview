@@ -96,7 +96,7 @@ export async function POST(request) {
     const validacion = dreamSchema.safeParse(body)
     if (!validacion.success) {
       return NextResponse.json(
-        { error: validacion.error.errors[0].message },
+        { error: validacion.error.issues[0].message },
         { status: 400 }
       )
     }
