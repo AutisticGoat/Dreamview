@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs'
 import { randomBytes } from 'crypto'
 import prisma from '@/lib/db'
 import { enviarCorreoVerificacion } from '@/lib/mailer'
+import { registerSchema } from '@/lib/validators'
 
 
 export async function POST(request) {
@@ -12,7 +13,7 @@ export async function POST(request) {
     const validacion = registerSchema.safeParse(body)
     if (!validacion.success) {
       return NextResponse.json(
-        { error: validacion.error.errors[0].message },
+        { error: validacion.error.issues[0].message },
         { status: 400 }
       )
     }
